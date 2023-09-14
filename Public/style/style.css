@@ -1,0 +1,119 @@
+/* style.css */
+
+body,
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the background of the login card */
+.card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the login form */
+.card-header {
+  background-color: #00a859;
+  color: #fff;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Style the login form labels */
+.form-label {
+  font-weight: bold;
+}
+
+/* Style the login button */
+.btn-primary {
+  background-color: #00a859;
+  border-color: #7d7c85;
+}
+
+/* Style the login button on hover */
+.btn-primary:hover {
+  background-color: #00a859;
+  border-color: #7d7c85;
+}
+
+/* Style the navigation bar */
+.navbar {
+  background-color: #bad6f3;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Style the navigation links */
+.nav-link {
+  color: #333;
+}
+
+/* Style the navigation links on hover */
+.nav-link:hover {
+  color: #00a859;
+}
+
+/* Style the navigation brand logo */
+.navbar-brand {
+  font-weight: bold;
+  color: #00a859;
+}
+
+/* Style the navigation brand logo on hover */
+.navbar-brand:hover {
+  color: #008746;
+}
+
+/* Style the image */
+.img-custom-size {
+  max-width: 100%;
+  height: auto;
+}
+
+.error-message {
+  color: red;
+}
+
+.success-message {
+  color: green;
+}
+
+/* Sidebar Styles */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  padding-top: 20px;
+  padding-right: 0;
+  padding-bottom: 20px;
+  padding-left: 0;
+  background-color: #bad6f3;
+  border-right: 1px solid #dee2e6;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+#content {
+  margin-left: 250px;
+  padding: 15px;
+}
+
+.btn.btn-block {
+  background-color: #ff0000;
+  color: #fff;
+  border: none; 
+  padding: 5px 10px;
+  border-radius: 5px; 
+  cursor: pointer; 
+}
+
+/* Style the Block button on hover */
+.btn.btn-block:hover {
+  background-color: #cc0000;
+}

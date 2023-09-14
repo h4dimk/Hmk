@@ -1,0 +1,48 @@
+<%- include('header') %>
+<%- include('adminlayout') %>
+
+<div id="content" class="">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <h2>Add New Product</h2>
+    </div>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6" style="margin-top: 20px;">
+      <form action="/admin/products/add" method="POST" enctype="multipart/form-data">
+        <!-- Product name, description, price, category fields, etc. -->
+        <div class="mb-3">
+          <label for="name" class="form-label">Product Name</label>
+          <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price</label>
+          <input type="number" class="form-control" id="price" name="price" required>
+        </div>
+        <div class="mb-3">
+          <label for="category" class="form-label">Category</label>
+          <select class="form-select" id="category" name="category" required>
+            <% categories.forEach(category => { %>
+            <option value="<%= category.name %>"><%= category.name %></option>
+            <%})%>
+          
+            <!-- Add more category options as needed -->
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="image" class="form-label">Product Image</label>
+          <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Product</button>
+      </form>
+    </div>
+  </div>
+  
+
+<%- include('footer') %>

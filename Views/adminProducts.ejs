@@ -1,0 +1,95 @@
+<%- include('header') %> <%- include('adminlayout') %>
+
+<div id="content" class="">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <h2>Product Management</h2>
+    </div>
+  </nav>
+
+  <!-- Search Bar -->
+  <div class="container mt-5">
+    <form action="/admin/product/search" method="post">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search..."
+              id="searchInput"
+              name="search"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button" id="searchButton">
+                Search
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Product List -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+      <div class="product-list" style="margin-top: 20px">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3>Product List</h3>
+          <a href="/admin/products/add" class="btn btn-primary">Add Product</a>
+        </div>
+        <table class="table table-bordered">
+          <thead class="table-primary">
+            <tr>
+              <th>Name</th>
+              <th>Image</th>
+              <th>Description</th>
+              <th>Price</th>
+              <th>Category</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loop through products and display details -->
+            <% products.forEach(product => { %>
+            <tr>
+              <td><%= product.name %></td>
+              <td>
+                <!-- Display the product image -->
+                <img
+                  src="/uploads/<%= product.imagePath %>"
+                  alt="<%= product.imagePath %>"
+                  width="100"
+                />
+              </td>
+              <td><%= product.description %></td>
+              <td><%= product.price %></td>
+              <td><%= product.category %></td>
+              <td class="actions-column">
+                <div class="button-container">
+                  <a
+                    href="/admin/products/edit/<%= product._id %>"
+                    class="btn btn-primary"
+                    >Edit</a
+                  >
+                  <form
+                    action="/admin/products/delete/<%= product._id %>"
+                    method="POST"
+                    style="display: inline"
+                  >
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>
