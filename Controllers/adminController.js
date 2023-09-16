@@ -1,6 +1,7 @@
 const userModel = require("../Models/user");
 const Product = require("../Models/products");
 const Category = require("../Models/category");
+const Admin = require("../Models/admin");
 
 const adminLoginGet = (req, res) => {
   res.render("adminLogin");
@@ -16,12 +17,28 @@ const adminHomeGet = (req, res) => {
 
 const adminLoginPost = async (req, res) => {
   const { username, password } = req.body;
+  if(!username || !password){
+    return res.render("adminLogin", { error: "Please enter username and password" })
+  }
 
-  if (username == "hadimk" && password == "1234") {
-    req.session.admin = username;
-    res.redirect("/admin");
-  } else {
-    res.render("adminLogin", { error: "Invalid email or password" });
+  try {
+    const admin = await Admin.findOne({ username });
+
+    if (!admin) {
+      return res.render("adminLogin", { error: "Admin not found" });
+    }
+
+    if (password === admin.password) {
+      req.session.admin = username;
+      return res.redirect("/admin");
+    } else {
+      return res.render("adminLogin", { error: "Invalid password" });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).render("error", {
+      message: "Internal server error. Please try again later.",
+    });
   }
 };
 
@@ -120,7 +137,7 @@ const editCategory = async (req, res) => {
   }
 };
 
-const toggleCategory = async (req, res) => {
+const ListUnlistCategory = async (req, res) => {
   const categoryId = req.params.id;
   const isListed = req.body.isListed;
 
@@ -226,8 +243,8 @@ const addProductGet = async (req, res) => {
   try {
     if (req.session.admin) {
       const products = await Product.find();
-      const categories= await Category.find();
-      res.render("addProduct", { products,categories});
+      const categories = await Category.find();
+      res.render("addProduct", { products, categories });
     } else {
       res.redirect("/admin/login");
     }
@@ -264,8 +281,8 @@ const editProductGet = async (req, res) => {
   try {
     if (req.session.admin) {
       const product = await Product.findById(productId);
-      const categories= await Category.find()
-      res.render("editProduct", { product,categories});
+      const categories = await Category.find();
+      res.render("editProduct", { product, categories });
     } else {
       res.redirect("/admin/login");
     }
@@ -294,7 +311,7 @@ const editProductPost = async (req, res) => {
     product.price = price;
     product.category = category;
     product.imagePath = filename;
-  
+
     await product.save();
 
     // Redirect to the product list or show a success message
@@ -312,14 +329,54 @@ const ProductSearch = async (req, res) => {
   try {
     const products = await Product.find({
       $or: [
-        {name: { $regex: searchText, $options: "i" }},
-        {category:{ $regex: searchText, $options: "i" }}
+        { name: { $regex: searchText, $options: "i" } },
+        { category: { $regex: searchText, $options: "i" } },
       ],
     });
 
     res.render("adminProducts", { products });
   } catch (error) {
     console.log(error);
+  }
+};
+
+const deleteProduct = (req, res) => {
+  if (req.session.admin) {
+    Product.findByIdAndDelete(req.params.id).then((resp) => {
+      console.log(resp);
+      res.send(200);
+    });
+  } else {
+    res.redirect("/admin/login");
+  }
+};
+
+const ListUnlistProduct = async (req, res) => {
+  const productId = req.params.id;
+  const isListed = req.body.isListed;
+
+  try {
+    // Find and update the category listing status in the database
+    const updatedCategory = await Product.findByIdAndUpdate(productId, {
+      islisted: isListed,
+    });
+    console.log("Button clicked. Produst ID:", productId);
+    console.log("Is listed:", isListed);
+
+    if (!updatedCategory) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found" });
+    }
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      message: `Product ${isListed ? "listed" : "unlisted"} successfully`,
+    });
+  } catch (error) {
+    console.error("Error toggling category:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 
@@ -339,9 +396,11 @@ module.exports = {
   editProductPost,
   addCategoryPost,
   editCategory,
-  toggleCategory,
+  ListUnlistCategory,
   deleteCategory,
   CategorySearch,
   UserSearch,
   ProductSearch,
+  deleteProduct,
+  ListUnlistProduct,
 };

@@ -2,10 +2,10 @@
 
 
 
-<div class="container mt-5">
-  <div class="row align-items-center" style="min-height: 100vh;">
+<div class="user-login">
+  <div class="row align-items-center container" style="min-height: 100vh;">
       <div class="col-md-6">
-          <img src="/images/LoginPageImg.jpeg" class="img-fluid img-custom-size" alt="Your Image" style="margin-top: -55px;">
+          <img src="/images/LoginPageImg.jpeg" class="img-fluid img-custom-size" alt="Your Image">
       </div>
       <div class="col-md-6">
           <div class="card">
@@ -19,15 +19,15 @@
                   <form action="/user/login" method="post">
                       <div class="mb-3">
                           <label for="email" class="form-label">Email:</label>
-                          <input type="text" class="form-control" id="email" name="email" required>
+                          <input type="text" class="form-control" id="email" name="email">
                       </div>
                       <div class="mb-3">
                           <label for="password" class="form-label">Password:</label>
-                          <input type="password" class="form-control" id="password" name="password" required>
+                          <input type="password" class="form-control" id="password" name="password">
                       </div>
                       <button type="submit" class="btn btn-primary">Login</button>
                       <div class="mb-3 text-center">
-                          <a href="/forgot-password" class="forgot-password-link">Forgot Password?</a>
+                          <a href="/user/forgot-password" class="forgot-password-link">Forgot Password?</a>
                       </div>
                   </form>
               </div>

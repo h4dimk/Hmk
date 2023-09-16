@@ -117,3 +117,11 @@ html {
 .btn.btn-block:hover {
   background-color: #cc0000;
 }
+
+.user-signup{
+  background-color: #D0D0C4;
+}
+
+.user-login{
+  background-color: #EFEFE7;
+}

@@ -48,6 +48,8 @@
               <th>Description</th>
               <th>Price</th>
               <th>Category</th>
+              <th>Status</th>
+              <!-- Added a Status column -->
               <th>Actions</th>
             </tr>
           </thead>
@@ -67,20 +69,36 @@
               <td><%= product.description %></td>
               <td><%= product.price %></td>
               <td><%= product.category %></td>
+              <td>
+                <% if (product.islisted) { %>
+                <span class="text-success">Listed</span>
+                <% } else { %>
+                <span class="text-danger">Unlisted</span>
+                <% } %>
+              </td>
               <td class="actions-column">
                 <div class="button-container">
                   <a
                     href="/admin/products/edit/<%= product._id %>"
                     class="btn btn-primary"
-                    >Edit</a
                   >
+                    Edit
+                  </a>
+
                   <form
                     action="/admin/products/delete/<%= product._id %>"
-                    method="POST"
+                    onsubmit="deleteProduct('<%= product._id %>'); return false;"
                     style="display: inline"
                   >
-                    <button class="btn btn-danger" type="submit">Delete</button>
+                    <button class="btn btn-danger">Delete</button>
                   </form>
+                  <button
+                    class="btn btn-warning toggle-product"
+                    data-product-id="<%= product._id %>"
+                  >
+                    <% if (product.islisted) { %> Unlist <% } else { %> List <%
+                    } %>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -90,6 +108,55 @@
       </div>
     </div>
   </div>
-</div>
 
-<%- include('footer') %>
+  <script>
+    // Delete Product
+    async function deleteProduct(id) {
+      try {
+        await fetch("/admin/products/delete/" + id, {
+          method: "DELETE",
+        }).then(() => {
+          window.location.reload();
+        });
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    }
+
+    // List-Unlist Product
+    $(document).ready(function () {
+      $(".toggle-product").on("click", function () {
+        const productId = $(this).data("product-id");
+        console.log($(this).text().trim());
+        const isListed = $(this).text().trim() === "List"; // Check if it's currently listed
+        console.log("Toggle product request received. Product ID:", productId);
+        console.log("Is listed:", isListed);
+        // Store a reference to the button element
+
+        const toggleButton = $(this);
+
+        // Send an AJAX request to update the "listed" status
+        $.ajax({
+          type: "PATCH",
+          url: `/admin/products/list-unlist/${productId}`,
+          data: { isListed }, // Toggle the status
+          success: function (response) {
+            // Handle success (e.g., update button text)
+            if (isListed) {
+              toggleButton.text("Unlist"); // Use the reference to update the button text
+            } else {
+              toggleButton.text("List"); // Use the reference to update the button text
+            }
+            window.location.reload();
+          },
+          error: function (error) {
+            // Handle error
+            console.error("Error toggling product:", error);
+          },
+        });
+      });
+    });
+  </script>
+
+  <%- include('footer') %>
+</div>

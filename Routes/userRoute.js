@@ -5,16 +5,25 @@ const userController = require("../Controllers/userController");
 router.get("/", userController.homeGet);
 
 router
-  .get("/Login", userController.userLoginPageGet)
-  .post("/Login", userController.userLoginPagePost);
+  .get("/login", userController.userLoginPageGet)
+  .post("/login", userController.userLoginPagePost)
+  .post("/logout",userController.userLogout)
 
 router
-  .get("/Signup", userController.userSignUpGet)
+  .get("/signup", userController.userSignUpGet)
   .post("/signup", userController.userSignUpPost);
 
 router
   .get("/verify", userController.otpEntryGet)
   .post("/verify", userController.otpEntryPost);
+
+router
+.get("/forgot-password", userController.forgotPasswordGet)
+.post("/forgot-password", userController.forgotPasswordPost)
+.get("/forgot-password/verify", userController.verifyOtpGet)
+.post("/forgot-password/verify", userController.verifyOtpPost)
+.get("/forgot-password/reset-password", userController.resetPasswordGet)
+.post("/forgot-password/reset-password", userController.resetPasswordPost);
 
 router.get("/shop",userController.UserShopGet)
 

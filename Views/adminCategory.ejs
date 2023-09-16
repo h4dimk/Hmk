@@ -160,7 +160,7 @@
       // Send an AJAX request to update the "listed" status
       $.ajax({
         type: "PATCH",
-        url: `/admin/categories/toggle/${categoryId}`,
+        url: `/admin/categories/list-unlist/${categoryId}`,
         data: { isListed }, // Toggle the status
         success: function (response) {
           // Handle success (e.g., update button text)

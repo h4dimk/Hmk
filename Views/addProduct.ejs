@@ -28,9 +28,10 @@
         <div class="mb-3">
           <label for="category" class="form-label">Category</label>
           <select class="form-select" id="category" name="category" required>
-            <% categories.forEach(category => { %>
+            <% categories.forEach(category => { 
+              if(category.islisted){%>
             <option value="<%= category.name %>"><%= category.name %></option>
-            <%})%>
+            <%}})%>
           
             <!-- Add more category options as needed -->
           </select>
