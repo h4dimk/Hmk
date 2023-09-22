@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const userModel = require("../Models/user");
 const Product = require("../Models/products");
 const nodemailer = require("nodemailer");
+const Banner = require("../Models/banner");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -42,38 +43,81 @@ function generateRandomOTP() {
 }
 
 const homeGet = async (req, res) => {
-  let login = req.session.login;
-  console.log("Now the user is "+login);
-  res.render("LandingPage", { login });
+  try {
+    const banners = await Banner.find();
+    const login = req.session.login;
+    console.log("Now the user is " + login);
+    res.render("LandingPage", { login, banners });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const userSignUpGet = (req, res) => {
-  let error = req.session.error;
-  res.render("UserSignUp", { error });
+  try {
+    const error = req.session.error;
+    res.render("UserSignUp", { error });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const userSignUpPost = async (req, res) => {
-  const { username, email, password, phonenumber } = req.body;
-  const saltRounds = 10;
-
-  if (!username || !email || !password || !phonenumber) {
-    req.session.error = "Please fill out all fields";
-    return res.redirect("/user/signup");
-  }
-
-  if (password.includes(" ")) {
-    req.session.error = "Password should not contain spaces";
-    return res.redirect("/user/signup");
-  }
-
-  if (!username.trim()) {
-    req.session.error = "Username cannot be empty";
-    return res.redirect("/user/signup");
-  }
-
-  const otp = generateRandomOTP();
-
   try {
+    const { username, email, password, confirmPassword, phonenumber } =
+      req.body;
+    const saltRounds = 10;
+
+    if (!username || !email || !password || !confirmPassword || !phonenumber) {
+      req.session.error = "Please fill out all fields";
+      return res.redirect("/user/signup");
+    }
+
+    if (password.length < 6) {
+      req.session.error = "Password should contain Minimum 6 characters";
+      return res.redirect("/user/signup");
+    }
+
+    if (password.includes(" ")) {
+      req.session.error = "Password should not contain spaces";
+      return res.redirect("/user/signup");
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      req.session.error =
+        "Password should contain at least one uppercase letter";
+      return res.redirect("/user/signup");
+    }
+
+    if (!/[a-z]/.test(password)) {
+      req.session.error =
+        "Password should contain at least one lowercase letter";
+      return res.redirect("/user/signup");
+    }
+
+    if (!/\d/.test(password)) {
+      req.session.error = "Password should contain at least one digit";
+      return res.redirect("/user/signup");
+    }
+
+    if (!/[!@#$%^&*()_+[\]{};':"\\|,.<>?/~`]/.test(password)) {
+      req.session.error =
+        "Password should contain at least one special character";
+      return res.redirect("/user/signup");
+    }
+
+    if (!username.trim()) {
+      req.session.error = "Username cannot be empty";
+      return res.redirect("/user/signup");
+    }
+
+    if (password !== confirmPassword) {
+      req.session.error = "Passwords do not match";
+      return res.redirect("/user/signup");
+    }
+
+    const otp = generateRandomOTP();
+
     const existingEmail = await userModel.findOne({ email });
     if (existingEmail) {
       req.session.error = "Email already in use";
@@ -82,6 +126,7 @@ const userSignUpPost = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    delete req.session.error;
     req.session.email = email;
 
     // Create a new user document with OTP
@@ -94,10 +139,10 @@ const userSignUpPost = async (req, res) => {
       otp: otp, // Store OTP in the user document
     });
 
-    console.log("OTP for "+newUser.email+" is "+otp);
-
     // Send OTP to the user's email
     sendOTPToUser(newUser.email, otp);
+
+    console.log("OTP for " + newUser.email + " is " + otp);
 
     req.session.otptoentr = true;
 
@@ -109,49 +154,55 @@ const userSignUpPost = async (req, res) => {
 };
 
 const userLoginPageGet = (req, res) => {
-  let error = req.session.error;
+  const error = req.session.error;
   res.render("UserLogin", { error });
 };
 
-const userLogout=(req,res)=>{
-  if(req.session.login){
+const userLogout = (req, res) => {
+  if (req.session.login) {
     delete req.session.login;
-    return res.redirect('/user/login') 
+    return res.redirect("/user/login");
   }
-}
+};
 
 const userLoginPagePost = async (req, res) => {
-  const { email, password } = req.body;
-  console.log("username = " + email);
-  console.log("passs = " + password);
+  try {
+    const { email, password } = req.body;
+    console.log("username = " + email);
+    console.log("passs = " + password);
 
-  if (!email || !password) {
-    req.session.error = "Please enter your username and password";
-    return res.redirect("/user/login");
-  }
+    if (!email || !password) {
+      req.session.error = "Please enter your username and password";
+      return res.redirect("/user/login");
+    }
 
-  const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email });
 
-  if (!user) {
-    req.session.error = "Invalid email or password";
-    return res.redirect("/user/login");
-  }
+    if (!user) {
+      req.session.error = "Invalid email or password";
+      return res.redirect("/user/login");
+    }
 
-  if (!user.isActive) {
-    req.session.error = "You need to verify";
-    return res.redirect("/user/login");
-  }
+    if (!user.isActive) {
+      req.session.error = "You need to verify";
+      return res.redirect("/user/login");
+    }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  if (!isPasswordValid) {
-    req.session.error = "Invalid email or password";
-    return res.redirect("/user/login");
-  }
+    if (!isPasswordValid) {
+      req.session.error = "Invalid email or password";
+      return res.redirect("/user/login");
+    }
 
-  if (user) {
-    req.session.login = user.email;
-    res.redirect("/user");
+    delete req.session.error;
+
+    if (user) {
+      req.session.login = user.email;
+      res.redirect("/user");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -182,6 +233,7 @@ const otpEntryPost = async (req, res) => {
   await user.save();
 
   delete req.session.otptoentr;
+  delete req.session.error;
 
   res.redirect("/user/login");
 };
@@ -191,6 +243,31 @@ const UserShopGet = async (req, res) => {
 
   res.render("UserShop", { products });
 };
+
+const ShopSearch = async (req, res) => {
+  const searchText = req.body.search;
+
+  try {
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: searchText, $options: "i" } },
+        { category: { $regex: searchText, $options: "i" } },
+      ],
+    });
+
+    res.render("UserShop", { products });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const ProductDetailsGet= (req,res)=>{
+  try {
+    res.render("ProductDetails")
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 const forgotPasswordGet = (req, res) => {
   res.render("forgotpassword");
@@ -268,10 +345,12 @@ const verifyOtpPost = async (req, res) => {
   user.isActive = true;
 
   // Reset the user's OTP
-  user.otp = null; // Set OTP to null or handle OTP expiration as needed
+  user.otp = null;
 
   // Save the updated user document
   await user.save();
+
+  delete req.session.error;
 
   // Redirect the user to the password reset page
   return res.redirect("/user/forgot-password/reset-password");
@@ -279,7 +358,8 @@ const verifyOtpPost = async (req, res) => {
 
 const resetPasswordGet = (req, res) => {
   if (req.session.frgtpass) {
-    res.render("resetpassword");
+    const error = req.session.error;
+    res.render("resetpassword", { error });
   } else {
     res.redirect("/user/login");
   }
@@ -289,9 +369,46 @@ const resetPasswordPost = async (req, res) => {
   const { newPassword, confirmPassword } = req.body;
   const userEmail = req.session.resetEmail;
 
+  if (!newPassword || !confirmPassword) {
+    req.session.error = "Please fill out all fields";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (newPassword.length < 6) {
+    req.session.error = "Password should contain Minimum 6 characters";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (newPassword.includes(" ")) {
+    req.session.error = "Password should not contain spaces";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (!/[A-Z]/.test(newPassword)) {
+    req.session.error = "Password should contain at least one uppercase letter";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (!/[a-z]/.test(newPassword)) {
+    req.session.error = "Password should contain at least one lowercase letter";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (!/\d/.test(newPassword)) {
+    req.session.error = "Password should contain at least one digit";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
+  if (!/[!@#$%^&*()_+[\]{};':"\\|,.<>?/~`]/.test(newPassword)) {
+    req.session.error =
+      "Password should contain at least one special character";
+    return res.redirect("/user/forgot-password/reset-password");
+  }
+
   // Check if newPassword matches confirmPassword
   if (newPassword !== confirmPassword) {
-    return res.render("resetpassword", { error: "Passwords do not match" });
+    req.session.error = "Password do not match";
+    return res.redirect("/user/forgot-password/reset-password");
   }
 
   try {
@@ -309,6 +426,7 @@ const resetPasswordPost = async (req, res) => {
       await user.save();
 
       delete req.session.frgtpass;
+      delete req.session.error;
 
       // Redirect the user to the login page with a success message
       return res.redirect("/user/login");
@@ -321,6 +439,22 @@ const resetPasswordPost = async (req, res) => {
   }
 };
 
+const userCartGet= (req,res)=>{
+  try {
+    res.render("UserCart")
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+const CheckoutGet=(req,res)=>{
+  try {
+    res.render("CheckoutPage")
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   userSignUpGet,
   otpEntryGet,
@@ -331,10 +465,14 @@ module.exports = {
   userLoginPagePost,
   userLogout,
   UserShopGet,
+  ShopSearch,
+  ProductDetailsGet,
   forgotPasswordGet,
   forgotPasswordPost,
   verifyOtpGet,
   verifyOtpPost,
   resetPasswordGet,
   resetPasswordPost,
+  userCartGet,
+  CheckoutGet,
 };

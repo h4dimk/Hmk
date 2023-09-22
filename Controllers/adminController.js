@@ -2,10 +2,7 @@ const userModel = require("../Models/user");
 const Product = require("../Models/products");
 const Category = require("../Models/category");
 const Admin = require("../Models/admin");
-
-const adminLoginGet = (req, res) => {
-  res.render("adminLogin");
-};
+const Banner = require("../Models/banner");
 
 const adminHomeGet = (req, res) => {
   if (req.session.admin) {
@@ -15,24 +12,37 @@ const adminHomeGet = (req, res) => {
   }
 };
 
+const adminLoginGet = (req, res) => {
+  if (req.session.admin) {
+    res.redirect("/admin/dashboard");
+  } else {
+    let error = req.session.error;
+    res.render("adminLogin", { error });
+  }
+};
+
 const adminLoginPost = async (req, res) => {
   const { username, password } = req.body;
-  if(!username || !password){
-    return res.render("adminLogin", { error: "Please enter username and password" })
+  if (!username || !password) {
+    req.session.error = "Please enter username and password";
+    return res.redirect("/admin/login");
   }
 
   try {
     const admin = await Admin.findOne({ username });
 
     if (!admin) {
-      return res.render("adminLogin", { error: "Admin not found" });
+      req.session.error = "Admin not found";
+      return res.redirect("/admin/login");
     }
 
     if (password === admin.password) {
+      delete req.session.error;
       req.session.admin = username;
       return res.redirect("/admin");
     } else {
-      return res.render("adminLogin", { error: "Invalid password" });
+      req.session.error = "Invalid password";
+      return res.redirect("/admin/login");
     }
   } catch (error) {
     console.error("Error:", error);
@@ -86,8 +96,9 @@ const UserSearch = async (req, res) => {
 const adminCategoryGet = async (req, res) => {
   try {
     if (req.session.admin) {
+      let error = req.session.error;
       const categories = await Category.find();
-      res.render("adminCategory", { categories });
+      res.render("adminCategory", { categories, error });
     } else {
       res.redirect("/admin/login");
     }
@@ -100,8 +111,26 @@ const addCategoryPost = async (req, res) => {
   const { categoryName } = req.body;
 
   try {
+    if (!categoryName) {
+      req.session.error = "Enter Category Name";
+      return res.redirect("/admin/categories");
+    }
+
+    if (!categoryName.trim()) {
+      req.session.error = "Category cannot be empty";
+      return res.redirect("/admin/categories");
+    }
+
+    const existingCategory = await Category.findOne({ name: categoryName });
+    if (existingCategory) {
+      req.session.error = "Category already exist";
+      return res.redirect("/admin/categories");
+    }
+
     // Create a new category
     const category = new Category({ name: categoryName });
+
+    delete req.session.error;
 
     // Save the category to the database
     await category.save();
@@ -169,7 +198,7 @@ const ListUnlistCategory = async (req, res) => {
 const deleteCategory = (req, res) => {
   if (req.session.admin) {
     Category.findByIdAndDelete(req.params.id).then((res) => {
-      console.log(res);
+      console.log(res + " deleted");
     });
   } else {
     res.redirect("/admin/login");
@@ -244,7 +273,8 @@ const addProductGet = async (req, res) => {
     if (req.session.admin) {
       const products = await Product.find();
       const categories = await Category.find();
-      res.render("addProduct", { products, categories });
+      const error = req.session.error;
+      res.render("addProduct", { products, categories, error });
     } else {
       res.redirect("/admin/login");
     }
@@ -255,18 +285,24 @@ const addProductGet = async (req, res) => {
 
 const addProductPost = async (req, res) => {
   const { name, description, price, category } = req.body;
-  const filename = req.file.filename;
-  console.log(filename);
+  const filenames = req.files.map((file) => file.filename);
 
   try {
+    if (price < 0) {
+      // Check if the price is less than zero
+      req.session.error = "Price cannot be negative value";
+      return res.redirect("/admin/products/add");
+    }
+
     const product = new Product({
       name: name,
       description: description,
       price: price,
       category: category,
-      imagePath: filename, // Save the filename in the "image" field of the product
+      imagePath: filenames,
     });
     await product.save();
+    delete req.session.error;
     res.redirect("/admin/products");
   } catch (error) {
     console.error(error);
@@ -282,7 +318,8 @@ const editProductGet = async (req, res) => {
     if (req.session.admin) {
       const product = await Product.findById(productId);
       const categories = await Category.find();
-      res.render("editProduct", { product, categories });
+      const error = req.session.error;
+      res.render("editProduct", { product, categories, error });
     } else {
       res.redirect("/admin/login");
     }
@@ -295,10 +332,14 @@ const editProductGet = async (req, res) => {
 const editProductPost = async (req, res) => {
   const productId = req.params.id;
   const { name, description, price, category } = req.body;
-  const filename = req.file.filename;
+  const filenames = req.files ? req.files.map((file) => file.filename) : null;
   console.log(req.file);
 
   try {
+    if (price < 0) {
+      req.session.error = "Price cannot be negative value";
+      return res.redirect("/admin/products/add");
+    }
     const product = await Product.findById(productId);
 
     if (!product) {
@@ -310,7 +351,9 @@ const editProductPost = async (req, res) => {
     product.description = description;
     product.price = price;
     product.category = category;
-    product.imagePath = filename;
+    if (filenames) {
+      product.imagePath = filenames;
+    }
 
     await product.save();
 
@@ -343,7 +386,7 @@ const ProductSearch = async (req, res) => {
 const deleteProduct = (req, res) => {
   if (req.session.admin) {
     Product.findByIdAndDelete(req.params.id).then((resp) => {
-      console.log(resp);
+      console.log(resp + "deleted");
       res.send(200);
     });
   } else {
@@ -380,6 +423,58 @@ const ListUnlistProduct = async (req, res) => {
   }
 };
 
+const adminBannersGet = async (req, res) => {
+  try {
+    if (req.session.admin) {
+      const banners = await Banner.find();
+      res.render("adminBannerMng", { banners: banners });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const adminBannersPost = async (req, res) => {
+  try {
+    // Retrieve data from the form
+    const { mainTitle, subtitle } = req.body;
+    const bannerImage = req.file.filename;
+    console.log(req.file);
+
+    // Create a new banner instance
+    const newBanner = new Banner({
+      bannerImage: bannerImage,
+      mainTitle: mainTitle,
+      subtitle: subtitle,
+    });
+
+    // Save the banner to the database
+    await newBanner.save();
+
+    // Redirect to the banner list page or perform any other desired action
+    res.redirect("/admin/banners"); // Redirect to the banner list page
+  } catch (error) {
+    console.error("Error adding banner:", error);
+    // Handle the error and render an error page or display an error message
+    res.status(500).render("error", {
+      message: "Internal server error. Please try again later.",
+    });
+  }
+};
+
+const deleteBanner = (req, res) => {
+  if (req.session.admin) {
+    Banner.findByIdAndDelete(req.params.id).then((resp) => {
+      console.log(resp + " deleted");
+      res.send(200);
+    });
+  } else {
+    res.redirect("/admin/login");
+  }
+};
+
 module.exports = {
   adminHomeGet,
   adminLoginGet,
@@ -403,4 +498,7 @@ module.exports = {
   ProductSearch,
   deleteProduct,
   ListUnlistProduct,
+  adminBannersGet,
+  adminBannersPost,
+  deleteBanner,
 };

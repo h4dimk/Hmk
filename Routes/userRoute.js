@@ -25,6 +25,16 @@ router
 .get("/forgot-password/reset-password", userController.resetPasswordGet)
 .post("/forgot-password/reset-password", userController.resetPasswordPost);
 
-router.get("/shop",userController.UserShopGet)
+router
+.get("/shop",userController.UserShopGet)
+.post("/shop/search",userController.ShopSearch)
+.get("/shop/product",userController.ProductDetailsGet)
+
+router
+.get("/cart",userController.userCartGet)
+.get("/cart/checkout",userController.CheckoutGet)
+
+
+
 
 module.exports = router;

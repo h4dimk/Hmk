@@ -21,10 +21,10 @@ const ProductSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  imagePath: {
+  imagePath:[{
     type: String,
     required: true,
-  },
+  }],
 });
 
 const Products = mongoose.model("Products", ProductSchema);

@@ -1,0 +1,105 @@
+<%- include('header')%>
+<%- include('adminlayout')%>
+
+<div id="content" class="container">
+     <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <h2>Banners Management</h2>
+    </div>
+  </nav>
+
+   <!-- Banner Form -->
+   <div class="container mt-5">
+    <form action="/admin/banners" method="post" enctype="multipart/form-data">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="bannerImage" class="form-label">Banner Image</label>
+            <input type="file" class="form-control" id="bannerImage" name="bannerImage" required>
+          </div>
+          <div class="mb-3">
+            <label for="mainTitle" class="form-label">Main Title</label>
+            <input type="text" class="form-control" id="mainTitle" name="mainTitle" required>
+          </div>
+          <div class="mb-3">
+            <label for="subtitle" class="form-label">Subtitle</label>
+            <input type="text" class="form-control" id="subtitle" name="subtitle" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Banner</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Banner List -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+      <div class="banner-list" style="margin-top: 20px">
+        <h3>Banner List</h3>
+        <table class="table table-bordered">
+          <thead class="table-primary">
+            <tr>
+              <th>Image</th>
+              <th>Main Title</th>
+              <th>Subtitle</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loop through banners and display details -->
+            <% banners.forEach(banner => { %>
+            <tr>
+              <td>
+                <!-- Display the banner image -->
+                <img
+                  src="/uploads/<%= banner.bannerImage %>"
+                  alt="<%= banner.bannerImage %>"
+                  width="100"
+                />
+              </td>
+              <td><%= banner.mainTitle %></td>
+              <td><%= banner.subtitle %></td>
+              <td class="actions-column">
+                <div class="button-container">
+                  <!-- <a
+                    href="/admin/banners/edit/<%= banner._id %>"
+                    class="btn btn-primary"
+                  >
+                    Edit
+                  </a> -->
+                  <form
+                    action="/admin/banners/delete/<%= banner._id %>"
+                    onsubmit="deleteBanner('<%= banner._id %>'); return false;"
+                    style="display: inline"
+                  >
+                    <button class="btn btn-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Delete Banner
+    async function deleteBanner(id) {
+      try {
+        await fetch("/admin/banners/delete/" + id, {
+          method: "DELETE",
+        }).then(() => {
+          window.location.reload();
+        });
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
+    }
+  </script>
+
+    
+  </div>
+<%- include('footer')%>

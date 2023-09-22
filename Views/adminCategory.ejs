@@ -8,51 +8,60 @@
     </div>
   </nav>
 
-   <!-- Search Bar -->
-   <div class="container mt-5">
-     <div class="row justify-content-center">
-       <div class="col-md-6">
-        <form action="/admin/categories/search" method="POST">
-        <div class="input-group">
-          <input
-            type="text"
-            class="form-control"
-            placeholder="Search..."
-            id="searchInput"
-            name="search"
-          />
-          <div class="input-group-append">
-            <button class="btn btn-primary" type="button" id="searchButton">
-              Search
-            </button>
+  <div class="container mt-4">
+    <div class="row">
+      <!-- Add Category Form -->
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-header admin-login">
+            <h4>Add Category</h4>
           </div>
-        </div>       
-      </form>
+          <div class="card-body">
+            <% if (locals.error) { %>
+              <p class="error-message"><%= error %></p>
+              <% } %>
+            <form action="/admin/categories/add" method="POST">
+              <div class="mb-3">
+                <label for="categoryName" class="form-label">Category Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="categoryName"
+                  name="categoryName"
+                />
+              </div>
+              <button type="submit" class="btn admin-login">Add Category</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="col-md-8">
+        <form action="/admin/categories/search" method="POST">
+          <div class="input-group mt-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Search..."
+              id="searchInput"
+              name="search"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit" id="searchButton">
+                Search
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- Add Category Form -->
-  <div class="row justify-content-center mt-4">
-    <div class="col-md-6">
-      <form action="/admin/categories/add" method="POST">
-        <div class="mb-3">
-          <label for="categoryName" class="form-label">Category Name</label>
-          <input
-            type="text"
-            class="form-control"
-            id="categoryName"
-            name="categoryName"
-            required
-          />
-        </div>
-        <button type="submit" class="btn btn-primary">Add Category</button>
-      </form>
-    </div>
-  </div>
-
   <!-- List of Categories -->
-  <ul class="list-group">
+  <ul class="list-group mt-4">
+    <h3>Categories</h3>
+
     <% categories.forEach(category => { %>
     <li class="list-group-item">
       <div class="category-container">
@@ -60,7 +69,7 @@
         <div class="float-end">
           <!-- Toggle button -->
           <button
-            class="btn btn-warning btn-sm toggle-category"
+            class="btn btn-secondary btn-sm toggle-category"
             data-category-id="<%= category._id %>"
           >
             <% if (category.islisted) { %> Unlist <% } else { %> List <% } %>
@@ -92,6 +101,7 @@
             type="text"
             class="form-control edit-category-input"
             style="display: none"
+            placeholder="Edit Category name"
           />
         </div>
       </div>

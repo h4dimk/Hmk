@@ -31,14 +31,10 @@ router
 router
   .get("/products", adminController.adminProductsGet)
   .get("/products/add", adminController.addProductGet)
-  .post("/products/add", upload.single("image"), adminController.addProductPost)
+  .post("/products/add", upload.array("images"), adminController.addProductPost)
   .post("/product/search", adminController.ProductSearch)
   .get("/products/edit/:id", adminController.editProductGet)
-  .post(
-    "/products/edit/:id",
-    upload.single("image"),
-    adminController.editProductPost
-  )
+  .post("/products/edit/:id",upload.array("images"),adminController.editProductPost)
   .delete("/products/delete/:id", adminController.deleteProduct)
   .patch("/products/list-unlist/:id", adminController.ListUnlistProduct);
 
@@ -55,5 +51,10 @@ router.get("/logout", adminController.adminlogout);
 router
   .get("/login", adminController.adminLoginGet)
   .post("/login", adminController.adminLoginPost);
+
+router
+  .get("/banners", adminController.adminBannersGet)
+  .post("/banners",upload.single("bannerImage"),adminController.adminBannersPost)
+  .delete("/banners/delete/:id", adminController.deleteBanner);
 
 module.exports = router;
