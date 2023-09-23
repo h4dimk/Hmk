@@ -3,6 +3,7 @@ const userModel = require("../Models/user");
 const Product = require("../Models/products");
 const nodemailer = require("nodemailer");
 const Banner = require("../Models/banner");
+const Cart = require("../Models/cart");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -154,14 +155,22 @@ const userSignUpPost = async (req, res) => {
 };
 
 const userLoginPageGet = (req, res) => {
-  const error = req.session.error;
-  res.render("UserLogin", { error });
+  try {
+    const error = req.session.error;
+    res.render("UserLogin", { error });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const userLogout = (req, res) => {
-  if (req.session.login) {
-    delete req.session.login;
-    return res.redirect("/user/login");
+  try {
+    if (req.session.login) {
+      delete req.session.login;
+      return res.redirect("/user/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -261,13 +270,15 @@ const ShopSearch = async (req, res) => {
   }
 };
 
-const ProductDetailsGet= (req,res)=>{
+const ProductDetailsGet = async (req, res) => {
   try {
-    res.render("ProductDetails")
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    res.render("ProductDetails", { product });
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 const forgotPasswordGet = (req, res) => {
   res.render("forgotpassword");
@@ -439,21 +450,161 @@ const resetPasswordPost = async (req, res) => {
   }
 };
 
-const userCartGet= (req,res)=>{
+const userCartGet = async (req, res) => {
   try {
-    res.render("UserCart")
+    const carts = await Cart.find();
+    res.render("UserCart", { carts });
   } catch (error) {
     console.error(error);
   }
-}
+};
 
-const CheckoutGet=(req,res)=>{
+// const userCartPost = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
+//     const product = await Product.findById(productId);
+
+//     const quantity = req.body["num-product"];
+//     const price = product.price;
+
+//     const userId = req.user.id; 
+
+//     let user = await userModel.findById(userId).populate("cart");
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     if (!user.cart) {
+//       const cart = new Cart({
+//         productImg: product.imagePath[0],
+//         name: product.name,
+//         price: price,
+//         quantity: parseInt(quantity),
+//         total: quantity * price,
+//       });
+
+//       await cart.save();
+
+//       user.cart = cart;
+//     } else {
+//       const cartItem = user.cart;
+//       cartItem.quantity += parseInt(quantity);
+//       cartItem.total += quantity * price;
+
+//       await cartItem.save();
+//     }
+
+//     await user.save();
+
+//     res.redirect("/user/cart");
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+const userCartPost = async (req, res) => {
   try {
-    res.render("CheckoutPage")
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+
+    const quantity = req.body["num-product"];
+    const price = product.price;
+
+    const cartItem = await Cart.findOne({ name: product.name });
+
+    if (cartItem) {
+      cartItem.quantity += parseInt(quantity);
+      cartItem.total += quantity * price;
+      await cartItem.save();
+    } else {
+      const cart = new Cart({
+        productImg: product.imagePath[0],
+        name: product.name,
+        price: product.price,
+        quantity: parseInt(quantity),
+        total: quantity * price,
+      });
+      await cart.save();
+    }
+    res.redirect("/user/cart");
   } catch (error) {
     console.error(error);
   }
-}
+};
+
+
+const DeleteCart = async (req, res) => {
+  try {
+    Cart.findByIdAndDelete(req.params.id).then((resp) => {
+      console.log(resp + " deleted");
+      res.send(200);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const CartProductdc = async (req, res) => {
+  try {
+    const cartId = req.params.id;
+
+    // Find the cart item by ID
+    const cartItem = await Cart.findById(cartId);
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    // Decrease the quantity by 1 (you can customize this logic)
+    if (cartItem.quantity > 1) {
+      cartItem.quantity -= 1;
+
+      cartItem.total = cartItem.quantity * cartItem.price;
+
+      // Save the updated cart item
+      await cartItem.save();
+    }
+
+    res.sendStatus(200); // Send a success status code
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const CartProductin = async (req, res) => {
+  try {
+    const cartId = req.params.id;
+
+    // Find the cart item by ID
+    const cartItem = await Cart.findById(cartId);
+
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
+    }
+
+    // increase the quantity by 1
+    cartItem.quantity += 1;
+
+    cartItem.total = cartItem.quantity * cartItem.price;
+    // Save the updated cart item
+    await cartItem.save();
+
+    res.sendStatus(200); // Send a success status code
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const CheckoutGet = (req, res) => {
+  try {
+    res.render("CheckoutPage");
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 module.exports = {
   userSignUpGet,
@@ -474,5 +625,9 @@ module.exports = {
   resetPasswordGet,
   resetPasswordPost,
   userCartGet,
+  userCartPost,
+  DeleteCart,
+  CartProductdc,
+  CartProductin,
   CheckoutGet,
 };

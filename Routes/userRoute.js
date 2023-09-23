@@ -28,10 +28,14 @@ router
 router
 .get("/shop",userController.UserShopGet)
 .post("/shop/search",userController.ShopSearch)
-.get("/shop/product",userController.ProductDetailsGet)
+.get("/shop/product/:id",userController.ProductDetailsGet)
 
 router
 .get("/cart",userController.userCartGet)
+.post("/cart/:id",userController.userCartPost)
+.put("/cart/decrease/:id",userController.CartProductdc)
+.put("/cart/increase/:id",userController.CartProductin)
+.delete("/cart/delete/:id",userController.DeleteCart)
 .get("/cart/checkout",userController.CheckoutGet)
 
 

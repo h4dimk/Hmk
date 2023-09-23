@@ -361,18 +361,20 @@
                     <th class="column-6">Action</th>
                   </tr>
 
+                  <% carts.forEach(cart => { %>
                   <tr class="table_row">
                     <td class="column-1">
                       <div class="how-itemcart1">
-                        <img src="/images/images/item-cart-04.jpg" alt="IMG" />
+                        <img src="/uploads/<%=cart.productImg %>" alt="IMG" />
                       </div>
                     </td>
-                    <td class="column-2">Fresh Strawberries</td>
-                    <td class="column-3">$ 36.00</td>
+                    <td class="column-2"><%= cart.name %></td>
+                    <td class="column-3"><%= cart.price %></td>
                     <td class="column-4">
                       <div class="wrap-num-product flex-w m-l-auto m-r-0">
                         <div
                           class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
+                          data-product-id="<%= cart._id %>"
                         >
                           <i class="fs-16 zmdi zmdi-minus"></i>
                         </div>
@@ -380,22 +382,36 @@
                         <input
                           class="mtext-104 cl3 txt-center num-product"
                           type="number"
-                          name="num-product1"
-                          value="1"
+                          name="num-product"
+                          value="<%= cart.quantity %>"
                         />
 
                         <div
                           class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
+                          data-product-id="<%= cart._id %>"
                         >
                           <i class="fs-16 zmdi zmdi-plus"></i>
                         </div>
                       </div>
                     </td>
-                    <td class="column-5">$ 36.00</td>
+                    <td class="column-5">
+                      <span
+                        class="cart-item-total"
+                        data-total="<%= cart.price * cart.quantity %>"
+                      >
+                        <%= cart.price * cart.quantity %>
+                      </span>
+                    </td>
                     <td class="column-6">
-                      <button class="btn btn-danger">Remove</button>
+                      <button
+                        class="btn btn-danger"
+                        onclick="deleteItem('<%= cart._id %>'); return false;"
+                      >
+                        Remove
+                      </button>
                     </td>
                   </tr>
+                  <%})%>
                 </table>
               </div>
 
@@ -423,14 +439,13 @@
                   Update Cart
                 </div>
               </div> -->
-
             </div>
           </div>
         </div>
       </div>
       <div class="text-center">
         <a
-        href="/user/cart/Checkout"
+          href="/user/cart/Checkout"
           class="flex-c-m stext-101 cl0 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer mx-auto"
           style="width: 15%; height: 50px"
         >
@@ -585,6 +600,97 @@
         <i class="zmdi zmdi-chevron-up"></i>
       </span>
     </div>
+
+    <!--===============================================================================================-->
+
+    <script>
+      // product quantity increase
+      document.querySelectorAll(".btn-num-product-up").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const productId = button.dataset.productId;
+
+          try {
+            const response = await fetch(`/user/cart/increase/${productId}`, {
+              method: "PUT",
+            });
+
+            if (response.ok) {
+              // Update the quantity display on the page
+              const quantityElement = button.nextElementSibling;
+              if (
+                quantityElement &&
+                quantityElement.classList.contains("num-product")
+              ) {
+                const newQuantity = parseInt(quantityElement.value) + 1;
+                quantityElement.value = newQuantity > 0 ? newQuantity : 1;
+
+                // Update the total based on the new quantity
+                updateTotal(productId, newQuantity);
+              }
+            } else {
+              console.error("Failed to increase quantity");
+            }
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        });
+      });
+
+      // product quantity decrease
+      document.querySelectorAll(".btn-num-product-down").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const productId = button.dataset.productId;
+
+          try {
+            const response = await fetch(`/user/cart/decrease/${productId}`, {
+              method: "PUT", // Use PUT request to update the quantity
+            });
+
+            if (response.ok) {
+              // Update the quantity display on the page
+              const quantityElement = button.nextElementSibling;
+              if (
+                quantityElement &&
+                quantityElement.classList.contains("num-product")
+              ) {
+                const newQuantity = parseInt(quantityElement.value);
+                quantityElement.value = newQuantity > 0 ? newQuantity : 1;
+
+                // Update the total based on the new quantity
+                updateTotal(productId, newQuantity);
+              }
+            } else {
+              console.error("Failed to decrease quantity");
+            }
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        });
+      });
+
+      // Function to update the total based on quantity
+      function updateTotal(productId, newQuantity) {
+        const cartItemTotal = document.querySelector(
+          `[data-product-id="${productId}"] .cart-item-total`
+        );
+        const pricePerUnit = parseFloat(cartItemTotal.dataset.price);
+        cartItemTotal.dataset.total = (pricePerUnit * newQuantity).toFixed(2);
+        cartItemTotal.textContent = cartItemTotal.dataset.total;
+      }
+
+      // Delete cart
+      async function deleteItem(id) {
+        try {
+          await fetch("/user/cart/delete/" + id, {
+            method: "DELETE",
+          }).then(() => {
+            window.location.reload();
+          });
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
+      }
+    </script>
 
     <!--===============================================================================================-->
     <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
