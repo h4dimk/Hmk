@@ -4,6 +4,7 @@ const Product = require("../Models/products");
 const nodemailer = require("nodemailer");
 const Banner = require("../Models/banner");
 const Cart = require("../Models/cart");
+const Order = require("../Models/order");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -167,6 +168,7 @@ const userLogout = (req, res) => {
   try {
     if (req.session.login) {
       delete req.session.login;
+      req.session.destroy();
       return res.redirect("/user/login");
     }
   } catch (error) {
@@ -452,7 +454,8 @@ const resetPasswordPost = async (req, res) => {
 
 const userCartGet = async (req, res) => {
   try {
-    const carts = await Cart.find();
+    const user = req.session.login;
+    const carts = await Cart.find({ userId: user });
     res.render("UserCart", { carts });
   } catch (error) {
     console.error(error);
@@ -467,7 +470,7 @@ const userCartGet = async (req, res) => {
 //     const quantity = req.body["num-product"];
 //     const price = product.price;
 
-//     const userId = req.user.id; 
+//     const userId = req.user.id;
 
 //     let user = await userModel.findById(userId).populate("cart");
 
@@ -505,13 +508,17 @@ const userCartGet = async (req, res) => {
 
 const userCartPost = async (req, res) => {
   try {
+    const user = req.session.login;
+    if (!user) {
+      return res.redirect("/user/login");
+    }
     const productId = req.params.id;
     const product = await Product.findById(productId);
 
     const quantity = req.body["num-product"];
     const price = product.price;
 
-    const cartItem = await Cart.findOne({ name: product.name });
+    const cartItem = await Cart.findOne({ userId: user, name: product.name });
 
     if (cartItem) {
       cartItem.quantity += parseInt(quantity);
@@ -519,6 +526,7 @@ const userCartPost = async (req, res) => {
       await cartItem.save();
     } else {
       const cart = new Cart({
+        userId: user,
         productImg: product.imagePath[0],
         name: product.name,
         price: product.price,
@@ -532,7 +540,6 @@ const userCartPost = async (req, res) => {
     console.error(error);
   }
 };
-
 
 const DeleteCart = async (req, res) => {
   try {
@@ -598,11 +605,96 @@ const CartProductin = async (req, res) => {
   }
 };
 
-const CheckoutGet = (req, res) => {
+const CheckoutGet = async (req, res) => {
   try {
-    res.render("CheckoutPage");
+    const user = req.session.login;
+    const carts = await Cart.find({ userId: user });
+    res.render("CheckoutPage", { carts });
   } catch (error) {
     console.error(error);
+  }
+};
+
+const userOrdersGet = async (req, res) => {
+  try {
+    const userId = req.session.login;
+    const orders = await Order.find({ userId });
+
+    res.render("UserOrders", { orders });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const userOrdersPost = async (req, res) => {
+  try {
+    const user = req.session.login;
+    const carts = await Cart.find({ userId: user });
+
+    // Calculate the total amount on the server-side
+    let totalAmount = 0;
+    carts.forEach((cartItem) => {
+      totalAmount += cartItem.price * cartItem.quantity;
+    });
+
+    const {
+      name,
+      email,
+      state,
+      district,
+      city,
+      phone,
+      pincode,
+      paymentMethod,
+    } = req.body;
+
+    const order = new Order({
+      userId: user,
+      products: carts,
+      name,
+      email,
+      state,
+      district,
+      city,
+      phone,
+      pincode,
+      paymentMethod,
+      status: "shipped",
+      totalAmount: totalAmount,
+    });
+
+    await order.save();
+
+    await Cart.deleteMany({ userId: user });
+
+    res.redirect("/user/orders");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const CancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    console.log(req.params);
+
+    // Find the order by its ID in the database
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      // If the order doesn't exist, respond with an error
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Update the order status to "Cancelled"
+    order.status = "Cancelled";
+
+    // Save the updated order in the database
+    await order.save();
+    res.redirect("/user/orders");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error cancelling order" });
   }
 };
 
@@ -630,4 +722,7 @@ module.exports = {
   CartProductdc,
   CartProductin,
   CheckoutGet,
+  userOrdersGet,
+  userOrdersPost,
+  CancelOrder,
 };

@@ -57,4 +57,8 @@ router
   .post("/banners",upload.single("bannerImage"),adminController.adminBannersPost)
   .delete("/banners/delete/:id", adminController.deleteBanner);
 
+router
+.get("/orders",adminController.adminOrdersGet)
+.get("/orders/details/:id",adminController.adminOrdersDetailsGet)
+
 module.exports = router;

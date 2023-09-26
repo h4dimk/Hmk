@@ -38,6 +38,11 @@ router
 .delete("/cart/delete/:id",userController.DeleteCart)
 .get("/cart/checkout",userController.CheckoutGet)
 
+router
+.get("/orders",userController.userOrdersGet)
+.post("/orders",userController.userOrdersPost)
+.post("/orders/cancel-order/:orderId",userController.CancelOrder)
+
 
 
 

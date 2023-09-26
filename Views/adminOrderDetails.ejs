@@ -1,0 +1,107 @@
+<%- include('header') %>
+<%- include('adminlayout') %>
+
+<div id="content">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <h2 class="text-center">Order Management</h2>
+    </div>
+  </nav>
+  <div class="container mt-5">
+    <!-- Product Management Section -->
+    <div class="mb-5">
+      <h3 class="mb-3">Product List</h3>
+      <div class="row">
+        <% orders.forEach(order => { %>
+          <% order.products.forEach(product => { %>
+            <div class="col-md-4">
+              <div class="card product-card mb-4">
+                <div class="row no-gutters">
+                  <div class="col-md-5">
+                    <img
+                      src="/uploads/<%= product.productImg %>"
+                      class="card-img"
+                      alt="Product 1"
+                      style="width: 100%; height: 100%"
+                    />
+                  </div>
+                  <div class="col-md-7">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= product.name %></h5>
+                      <p class="card-text">Quantity: <%= product.quantity %></p>
+                      <p class="card-text">Price: ₹<%= product.price %></p>
+                      <p class="card-text">Category: Category 1</p>
+                      <p class="card-text">
+                        Status: <span class="text-success">Listed</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% }); %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="mb-4">Order Details</h3>
+      <div class="row">
+        <!-- Dummy Order Cards -->
+        <% orders.forEach(order => { %>
+          <div class="col-md-6">
+            <div class="card order-card mb-4">
+              <div class="card-body">
+                <h5 class="card-title">Order <%= order._id %></h5>
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p class="card-text">
+                      <strong>User Name:</strong> <%= order.name %>
+                    </p>
+                    <p class="card-text">
+                      <strong>Email:</strong> <%= order.email %>
+                    </p>
+                    <p class="card-text">
+                      <strong>Order Date:</strong> 2023-09-22 10:30 AM
+                    </p>
+                  </div>
+                  <div>
+                    <p class="card-text">
+                      <strong>Total Amount:</strong> ₹<%= order.totalAmount %>
+                    </p>
+                    <p class="card-text">
+                      <strong>Order Status:</strong>
+                      <select class="form-control">
+                        <option value="Pending">Pending</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </p>
+                  </div>
+                </div>
+                <hr />
+                <div class="address-section">
+                  <p class="card-text"><strong>Shipping Address:</strong></p>
+                  <ul class="list-unstyled">
+                    <li><strong>State:</strong> <%= order.state %></li>
+                    <li><strong>District:</strong> <%= order.district %></li>
+                    <li><strong>City:</strong> <%= order.city %></li>
+                    <li><strong>Pincode:</strong> <%= order.pincode %></li>
+                  </ul>
+                </div>
+                <!-- Cancel Button -->
+                <button class="btn btn-danger mt-3">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+        <!-- Repeat this order card for each order -->
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('footer') %>

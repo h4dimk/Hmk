@@ -3,32 +3,40 @@ const Product = require("../Models/products");
 const Category = require("../Models/category");
 const Admin = require("../Models/admin");
 const Banner = require("../Models/banner");
+const Order = require("../Models/order");
 
 const adminHomeGet = (req, res) => {
-  if (req.session.admin) {
-    res.redirect("/admin/dashboard");
-  } else {
-    res.redirect("/admin/login");
+  try {
+    if (req.session.admin) {
+      res.redirect("/admin/dashboard");
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
 const adminLoginGet = (req, res) => {
-  if (req.session.admin) {
-    res.redirect("/admin/dashboard");
-  } else {
-    let error = req.session.error;
-    res.render("adminLogin", { error });
+  try {
+    if (req.session.admin) {
+      res.redirect("/admin/dashboard");
+    } else {
+      let error = req.session.error;
+      res.render("adminLogin", { error });
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
 const adminLoginPost = async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    req.session.error = "Please enter username and password";
-    return res.redirect("/admin/login");
-  }
-
   try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      req.session.error = "Please enter username and password";
+      return res.redirect("/admin/login");
+    }
     const admin = await Admin.findOne({ username });
 
     if (!admin) {
@@ -78,9 +86,8 @@ const adminUsermanagementGet = async (req, res) => {
 };
 
 const UserSearch = async (req, res) => {
-  const searchText = req.body.search;
-
   try {
+    const searchText = req.body.search;
     const users = await userModel.find({
       $or: [
         { username: { $regex: searchText, $options: "i" } },
@@ -108,9 +115,8 @@ const adminCategoryGet = async (req, res) => {
 };
 
 const addCategoryPost = async (req, res) => {
-  const { categoryName } = req.body;
-
   try {
+    const { categoryName } = req.body;
     if (!categoryName) {
       req.session.error = "Enter Category Name";
       return res.redirect("/admin/categories");
@@ -145,10 +151,9 @@ const addCategoryPost = async (req, res) => {
 };
 
 const editCategory = async (req, res) => {
-  const categoryId = req.params.id;
-  const newCategoryName = req.body.categoryName;
-
   try {
+    const categoryId = req.params.id;
+    const newCategoryName = req.body.categoryName;
     // Update the category name in the database (replace with your database logic)
     const updatedCategory = await Category.findByIdAndUpdate(categoryId, {
       name: newCategoryName,
@@ -167,10 +172,9 @@ const editCategory = async (req, res) => {
 };
 
 const ListUnlistCategory = async (req, res) => {
-  const categoryId = req.params.id;
-  const isListed = req.body.isListed;
-
   try {
+    const categoryId = req.params.id;
+    const isListed = req.body.isListed;
     // Find and update the category listing status in the database
     const updatedCategory = await Category.findByIdAndUpdate(categoryId, {
       islisted: isListed,
@@ -196,18 +200,22 @@ const ListUnlistCategory = async (req, res) => {
 };
 
 const deleteCategory = (req, res) => {
-  if (req.session.admin) {
-    Category.findByIdAndDelete(req.params.id).then((res) => {
-      console.log(res + " deleted");
-    });
-  } else {
-    res.redirect("/admin/login");
+  try {
+    if (req.session.admin) {
+      Category.findByIdAndDelete(req.params.id).then((res) => {
+        console.log(res + " deleted");
+      });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
 const CategorySearch = async (req, res) => {
-  const searchText = req.body.search;
   try {
+    const searchText = req.body.search;
     const categories = await Category.find({
       name: { $regex: searchText, $options: "i" },
     });
@@ -219,18 +227,21 @@ const CategorySearch = async (req, res) => {
 };
 
 const adminlogout = (req, res) => {
-  if (req.session.admin) {
-    req.session.destroy();
-    res.redirect("/admin/login");
-  } else {
-    res.redirect("/admin/login");
+  try {
+    if (req.session.admin) {
+      req.session.destroy();
+      res.redirect("/admin/login");
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
 const toggleUserStatus = async (req, res) => {
-  const userId = req.params.id;
-
   try {
+    const userId = req.params.id;
     // Find the user by userId
     const user = await userModel.findById(userId);
 
@@ -284,10 +295,9 @@ const addProductGet = async (req, res) => {
 };
 
 const addProductPost = async (req, res) => {
-  const { name, description, price, category } = req.body;
-  const filenames = req.files.map((file) => file.filename);
-
   try {
+    const { name, description, price, category } = req.body;
+    const filenames = req.files.map((file) => file.filename);
     if (price < 0) {
       // Check if the price is less than zero
       req.session.error = "Price cannot be negative value";
@@ -311,10 +321,9 @@ const addProductPost = async (req, res) => {
 };
 
 const editProductGet = async (req, res) => {
-  const productId = req.params.id;
-  console.log(productId);
-
   try {
+    const productId = req.params.id;
+    console.log(productId);
     if (req.session.admin) {
       const product = await Product.findById(productId);
       const categories = await Category.find();
@@ -330,12 +339,11 @@ const editProductGet = async (req, res) => {
 };
 
 const editProductPost = async (req, res) => {
-  const productId = req.params.id;
-  const { name, description, price, category } = req.body;
-  const filenames = req.files ? req.files.map((file) => file.filename) : null;
-  console.log(req.file);
-
   try {
+    const productId = req.params.id;
+    const { name, description, price, category } = req.body;
+    const filenames = req.files ? req.files.map((file) => file.filename) : null;
+    console.log(req.file);
     if (price < 0) {
       req.session.error = "Price cannot be negative value";
       return res.redirect("/admin/products/add");
@@ -367,9 +375,8 @@ const editProductPost = async (req, res) => {
 };
 
 const ProductSearch = async (req, res) => {
-  const searchText = req.body.search;
-
   try {
+    const searchText = req.body.search;
     const products = await Product.find({
       $or: [
         { name: { $regex: searchText, $options: "i" } },
@@ -384,13 +391,17 @@ const ProductSearch = async (req, res) => {
 };
 
 const deleteProduct = (req, res) => {
-  if (req.session.admin) {
-    Product.findByIdAndDelete(req.params.id).then((resp) => {
-      console.log(resp + "deleted");
-      res.send(200);
-    });
-  } else {
-    res.redirect("/admin/login");
+  try {
+    if (req.session.admin) {
+      Product.findByIdAndDelete(req.params.id).then((resp) => {
+        console.log(resp + "deleted");
+        res.send(200);
+      });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -465,13 +476,46 @@ const adminBannersPost = async (req, res) => {
 };
 
 const deleteBanner = (req, res) => {
-  if (req.session.admin) {
-    Banner.findByIdAndDelete(req.params.id).then((resp) => {
-      console.log(resp + " deleted");
-      res.send(200);
-    });
-  } else {
-    res.redirect("/admin/login");
+  try {
+    if (req.session.admin) {
+      Banner.findByIdAndDelete(req.params.id).then((resp) => {
+        console.log(resp + " deleted");
+        res.send(200);
+      });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const adminOrdersGet = async (req, res) => {
+  try {
+    if (req.session.admin) {
+      const orders = await Order.find();
+
+      res.render("adminOrders", { orders });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const adminOrdersDetailsGet = async (req, res) => {
+  try {
+    if (req.session.admin) {
+      const orderId = req.params.id;
+      const orders = await Order.find({ _id: orderId });
+
+      res.render("adminOrderDetails", { orders });
+    } else {
+      res.redirect("/admin/login");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -501,4 +545,6 @@ module.exports = {
   adminBannersGet,
   adminBannersPost,
   deleteBanner,
+  adminOrdersGet,
+  adminOrdersDetailsGet,
 };
