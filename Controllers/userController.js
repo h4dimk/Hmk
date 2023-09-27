@@ -195,7 +195,7 @@ const userLoginPagePost = async (req, res) => {
     }
 
     if (!user.isActive) {
-      req.session.error = "You need to verify";
+      req.session.error = "You are Blocked";
       return res.redirect("/user/login");
     }
 
@@ -659,8 +659,9 @@ const userOrdersPost = async (req, res) => {
       phone,
       pincode,
       paymentMethod,
-      status: "shipped",
+      status: "Pending",
       totalAmount: totalAmount,
+      orderDate: new Date(),
     });
 
     await order.save();

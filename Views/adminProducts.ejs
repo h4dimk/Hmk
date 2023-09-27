@@ -1,161 +1,167 @@
 <%- include('header') %> <%- include('adminlayout') %>
 
-<div id="content" class="">
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <h2>Product Management</h2>
-    </div>
-  </nav>
+<div id="content">
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <h2>Product Management</h2>
+      </div>
+    </nav>
 
-  <!-- Search Bar -->
-  <div class="container mt-5">
-    <form action="/admin/product/search" method="post">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search..."
-              id="searchInput"
-              name="search"
-            />
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit" id="searchButton">
-                Search
-              </button>
+    <!-- Search Bar -->
+    <div class="container mt-5">
+      <form action="/admin/product/search" method="post">
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search..."
+                id="searchInput"
+                name="search"
+              />
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit" id="searchButton">
+                  Search
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
-  </div>
+      </form>
+    </div>
 
-  <!-- Product List -->
-  <div class="row justify-content-center mt-4">
-    <div class="col-md-10">
-      <div class="product-list" style="margin-top: 20px">
-        <div class="d-flex justify-content-between align-items-center">
-          <h3>Product List</h3>
-          <a href="/admin/products/add" class="btn btn-primary">Add Product</a>
+    <!-- Product List -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-10">
+        <div class="product-list" style="margin-top: 20px">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3>Product List</h3>
+            <a href="/admin/products/add" class="btn btn-primary"
+              >Add Product</a
+            >
+          </div>
+          <table class="table table-bordered">
+            <thead class="table-primary">
+              <tr>
+                <th>Name</th>
+                <th>Image</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Stock Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Loop through products and display details -->
+              <% products.forEach(product => { %>
+              <tr>
+                <td><%= product.name %></td>
+                <td>
+                  <!-- Display the product image -->
+                  <img
+                    src="/uploads/<%= product.imagePath[0] %>"
+                    alt="<%= product.imagePath %>"
+                    width="100"
+                  />
+                </td>
+                <td><%= product.description %></td>
+                <td>₹<%= product.price %></td>
+                <td><%= product.category %></td>
+                <td><%= product.stockQuantity %></td>
+                <td>
+                  <% if (product.islisted) { %>
+                  <span class="text-success">Listed</span>
+                  <% } else { %>
+                  <span class="text-danger">Unlisted</span>
+                  <% } %>
+                </td>
+                <td class="actions-column">
+                  <div class="button-container">
+                    <a
+                      href="/admin/products/edit/<%= product._id %>"
+                      class="btn btn-primary"
+                    >
+                      Edit
+                    </a>
+
+                    <form
+                      action="/admin/products/delete/<%= product._id %>"
+                      onsubmit="deleteProduct('<%= product._id %>'); return false;"
+                      style="display: inline"
+                    >
+                      <button class="btn btn-danger">Delete</button>
+                    </form>
+                    <button
+                      class="btn btn-secondary toggle-product"
+                      data-product-id="<%= product._id %>"
+                    >
+                      <% if (product.islisted) { %> Unlist <% } else { %> List
+                      <% } %>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
         </div>
-        <table class="table table-bordered">
-          <thead class="table-primary">
-            <tr>
-              <th>Name</th>
-              <th>Image</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Loop through products and display details -->
-            <% products.forEach(product => { %>
-            <tr>
-              <td><%= product.name %></td>
-              <td>
-                <!-- Display the product image -->
-                <img
-                  src="/uploads/<%= product.imagePath[0] %>"
-                  alt="<%= product.imagePath %>"
-                  width="100"
-                />
-              </td>
-              <td><%= product.description %></td>
-              <td>₹<%= product.price %></td>
-              <td><%= product.category %></td>
-              <td>
-                <% if (product.islisted) { %>
-                <span class="text-success">Listed</span>
-                <% } else { %>
-                <span class="text-danger">Unlisted</span>
-                <% } %>
-              </td>
-              <td class="actions-column">
-                <div class="button-container">
-                  <a
-                    href="/admin/products/edit/<%= product._id %>"
-                    class="btn btn-primary"
-                  >
-                    Edit
-                  </a>
-
-                  <form
-                    action="/admin/products/delete/<%= product._id %>"
-                    onsubmit="deleteProduct('<%= product._id %>'); return false;"
-                    style="display: inline"
-                  >
-                    <button class="btn btn-danger">Delete</button>
-                  </form>
-                  <button
-                    class="btn btn-secondary toggle-product"
-                    data-product-id="<%= product._id %>"
-                  >
-                    <% if (product.islisted) { %> Unlist <% } else { %> List <%
-                    } %>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <% }); %>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    // Delete Product
-    async function deleteProduct(id) {
-      try {
-        await fetch("/admin/products/delete/" + id, {
-          method: "DELETE",
-        }).then(() => {
-          window.location.reload();
-        });
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
+<script>
+  // Delete Product
+  async function deleteProduct(id) {
+    try {
+      await fetch("/admin/products/delete/" + id, {
+        method: "DELETE",
+      }).then(() => {
+        window.location.reload();
+      });
+    } catch (error) {
+      console.error("An error occurred:", error);
     }
+  }
 
-    // List-Unlist Product
-    $(document).ready(function () {
-      $(".toggle-product").on("click", function () {
-        const productId = $(this).data("product-id");
-        console.log($(this).text().trim());
-        const isListed = $(this).text().trim() === "List"; // Check if it's currently listed
-        console.log("Toggle product request received. Product ID:", productId);
-        console.log("Is listed:", isListed);
-        // Store a reference to the button element
+  // List-Unlist Product
+  $(document).ready(function () {
+    $(".toggle-product").on("click", function () {
+      const productId = $(this).data("product-id");
+      console.log($(this).text().trim());
+      const isListed = $(this).text().trim() === "List"; // Check if it's currently listed
+      console.log("Toggle product request received. Product ID:", productId);
+      console.log("Is listed:", isListed);
+      // Store a reference to the button element
 
-        const toggleButton = $(this);
+      const toggleButton = $(this);
 
-        // Send an AJAX request to update the "listed" status
-        $.ajax({
-          type: "PATCH",
-          url: `/admin/products/list-unlist/${productId}`,
-          data: { isListed }, // Toggle the status
-          success: function (response) {
-            // Handle success (e.g., update button text)
-            if (isListed) {
-              toggleButton.text("Unlist"); // Use the reference to update the button text
-            } else {
-              toggleButton.text("List"); // Use the reference to update the button text
-            }
-            window.location.reload();
-          },
-          error: function (error) {
-            // Handle error
-            console.error("Error toggling product:", error);
-          },
-        });
+      // Send an AJAX request to update the "listed" status
+      $.ajax({
+        type: "PATCH",
+        url: `/admin/products/list-unlist/${productId}`,
+        data: { isListed }, // Toggle the status
+        success: function (response) {
+          // Handle success (e.g., update button text)
+          if (isListed) {
+            toggleButton.text("Unlist"); // Use the reference to update the button text
+          } else {
+            toggleButton.text("List"); // Use the reference to update the button text
+          }
+          window.location.reload();
+        },
+        error: function (error) {
+          // Handle error
+          console.error("Error toggling product:", error);
+        },
       });
     });
-  </script>
+  });
+</script>
 
-</div>
-  <%- include('footer') %>
+<%- include('footer') %>

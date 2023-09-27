@@ -60,5 +60,7 @@ router
 router
 .get("/orders",adminController.adminOrdersGet)
 .get("/orders/details/:id",adminController.adminOrdersDetailsGet)
+.post("/orders/details/:id",adminController.adminOrdersDetailsPost)
+
 
 module.exports = router;

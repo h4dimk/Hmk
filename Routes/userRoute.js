@@ -1,6 +1,7 @@
 const expres = require("express");
 const router = expres.Router();
 const userController = require("../Controllers/userController");
+const checkUserStatus= require("../Middlewares/authMiddleware")
 
 router.get("/", userController.homeGet);
 

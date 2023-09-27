@@ -1,109 +1,112 @@
 <%- include('header') %> <%- include('adminlayout') %>
 
 <div id="content">
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <h2>User Management</h2>
-    </div>
-  </nav>
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <h2>User Management</h2>
+      </div>
+    </nav>
 
-  <!-- Search Bar -->
-  <div class="container mt-5">
-    <form action="/admin/usermanagement/search" method="post">
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search..."
-              id="searchInput"
-              name="search"
-            />
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit" id="searchButton">
-                Search
-              </button>
+    <!-- Search Bar -->
+    <div class="container mt-5">
+      <form action="/admin/usermanagement/search" method="post">
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search..."
+                id="searchInput"
+                name="search"
+              />
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit" id="searchButton">
+                  Search
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
+
+    <!-- User List -->
+    <div class="user-list mt-4">
+      <table class="table table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loop through users and display details -->
+          <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.username %></td>
+            <td><%= user.email %></td>
+            <td><%= user.phonenumber %></td>
+            <td><%= user.isActive? 'Active' : 'Blocked' %></td>
+            <td class="actions-column">
+              <div class="button-container">
+                <form
+                  action="/admin/usermanagement/block-unblock/<%= user._id %>"
+                  method="PATCH"
+                >
+                  <button class="btn btn-block" data-user-id="<%= user._id %>">
+                    <% if (user.isActive) { %> Block <% } else { %> Unblock <% }
+                    %>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
   </div>
-
-  <!-- User List -->
-  <div class="user-list mt-4">
-    <table class="table table-bordered">
-      <thead class="table-primary">
-        <tr>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Loop through users and display details -->
-        <% users.forEach(user => { %>
-        <tr>
-          <td><%= user.username %></td>
-          <td><%= user.email %></td>
-          <td><%= user.phonenumber %></td>
-          <td><%= user.isActive? 'Active' : 'Blocked' %></td>
-          <td class="actions-column">
-            <div class="button-container">
-              <form
-                action="/admin/usermanagement/block-unblock/<%= user._id %>"
-                method="PATCH"
-              >
-                <button class="btn btn-block" data-user-id="<%= user._id %>">
-                  <% if (user.isActive) { %> Block <% } else { %> Unblock <% }
-                  %>
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  </div>
-  <script>
-    // Function to handle the block/unblock button click
-    function toggleBlockStatus(userId) {
-      $.ajax({
-        url: `/admin/usermanagement/block-unblock/${userId}`,
-        type: "PATCH", // Assuming you are using the PATCH method
-        success: function (data) {
-          const $button = $(`#blockButton_${userId}`);
-
-          if (data === "blocked") {
-            // Update the button text and style when the user is blocked
-            $button.text("Unblock");
-          } else if (data === "unblocked") {
-            // Update the button text and style when the user is unblocked
-            $button.text("Block");
-          }
-          window.location.reload();
-        },
-        error: function (xhr, status, error) {
-          console.error("Error:", error);
-        },
-      });
-    }
-
-    // Attach a click event handler to each block/unblock button
-    $(document).ready(function () {
-      $(".btn-block").on("click", function (event) {
-        event.preventDefault();
-        const userId = event.currentTarget.getAttribute("data-user-id");
-        console.log("Clicked userId:", userId); // Add this line for debugging
-        toggleBlockStatus(userId);
-      });
-    });
-  </script>
 </div>
+
+<script>
+  // Function to handle the block/unblock button click
+  function toggleBlockStatus(userId) {
+    $.ajax({
+      url: `/admin/usermanagement/block-unblock/${userId}`,
+      type: "PATCH", // Assuming you are using the PATCH method
+      success: function (data) {
+        const $button = $(`#blockButton_${userId}`);
+
+        if (data === "blocked") {
+          // Update the button text and style when the user is blocked
+          $button.text("Unblock");
+        } else if (data === "unblocked") {
+          // Update the button text and style when the user is unblocked
+          $button.text("Block");
+        }
+        window.location.reload();
+      },
+      error: function (xhr, status, error) {
+        console.error("Error:", error);
+      },
+    });
+  }
+
+  // Attach a click event handler to each block/unblock button
+  $(document).ready(function () {
+    $(".btn-block").on("click", function (event) {
+      event.preventDefault();
+      const userId = event.currentTarget.getAttribute("data-user-id");
+      console.log("Clicked userId:", userId); // Add this line for debugging
+      toggleBlockStatus(userId);
+    });
+  });
+</script>
 
 <%- include('footer') %>

@@ -296,11 +296,16 @@ const addProductGet = async (req, res) => {
 
 const addProductPost = async (req, res) => {
   try {
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, stockQuantity } = req.body;
     const filenames = req.files.map((file) => file.filename);
     if (price < 0) {
       // Check if the price is less than zero
       req.session.error = "Price cannot be negative value";
+      return res.redirect("/admin/products/add");
+    }
+    if (stockQuantity < 0) {
+      // Check if the price is less than zero
+      req.session.error = "Stock Quantity cannot be negative value";
       return res.redirect("/admin/products/add");
     }
 
@@ -310,6 +315,7 @@ const addProductPost = async (req, res) => {
       price: price,
       category: category,
       imagePath: filenames,
+      stockQuantity: stockQuantity,
     });
     await product.save();
     delete req.session.error;
@@ -341,12 +347,12 @@ const editProductGet = async (req, res) => {
 const editProductPost = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, price, category } = req.body;
+    const { name, description, price, category, stockQuantity } = req.body;
     const filenames = req.files ? req.files.map((file) => file.filename) : null;
     console.log(req.file);
     if (price < 0) {
       req.session.error = "Price cannot be negative value";
-      return res.redirect("/admin/products/add");
+      return res.redirect(`/admin/products/edit/${productId}`);
     }
     const product = await Product.findById(productId);
 
@@ -359,7 +365,10 @@ const editProductPost = async (req, res) => {
     product.description = description;
     product.price = price;
     product.category = category;
-    if (filenames) {
+    product.stockQuantity = stockQuantity;
+
+    // Update image paths only if new images are uploaded
+    if (filenames && filenames.length > 0) {
       product.imagePath = filenames;
     }
 
@@ -519,6 +528,28 @@ const adminOrdersDetailsGet = async (req, res) => {
   }
 };
 
+const adminOrdersDetailsPost = async (req, res) => {
+  try {
+    const orderId = req.params.id.trim();
+    const { orderStatus } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // Update the order's status
+    order.status = orderStatus;
+    await order.save();
+
+    res.redirect("/admin/orders");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   adminHomeGet,
   adminLoginGet,
@@ -547,4 +578,5 @@ module.exports = {
   deleteBanner,
   adminOrdersGet,
   adminOrdersDetailsGet,
+  adminOrdersDetailsPost,
 };

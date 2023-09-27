@@ -69,6 +69,10 @@ const OrderSchema = new mongoose.Schema({
     type:Number,
     required:true,
   },
+  orderDate: {
+    type: Date,
+    required:true,
+  },
 });
 
 const Order = mongoose.model("Order", OrderSchema);
