@@ -527,6 +527,7 @@ const userCartPost = async (req, res) => {
     } else {
       const cart = new Cart({
         userId: user,
+        productId: product._id,
         productImg: product.imagePath[0],
         name: product.name,
         price: product.price,
@@ -608,8 +609,9 @@ const CartProductin = async (req, res) => {
 const CheckoutGet = async (req, res) => {
   try {
     const user = req.session.login;
+    const error = req.session.error;
     const carts = await Cart.find({ userId: user });
-    res.render("CheckoutPage", { carts });
+    res.render("CheckoutPage", { carts, error });
   } catch (error) {
     console.error(error);
   }
@@ -633,10 +635,43 @@ const userOrdersPost = async (req, res) => {
 
     // Calculate the total amount on the server-side
     let totalAmount = 0;
-    carts.forEach((cartItem) => {
-      totalAmount += cartItem.price * cartItem.quantity;
-    });
 
+    // Track product IDs and their ordered quantities
+    const updatedStockQuantities = {};
+
+    // Process each item in the user's cart
+    for (const cartItem of carts) {
+      totalAmount += cartItem.price * cartItem.quantity;
+
+      // Decrease stock quantity for each product in the order
+      const product = await Product.findById(cartItem.productId);
+
+      if (product) {
+        const orderedQuantity = cartItem.quantity;
+        const currentStockQuantity = product.stockQuantity;
+
+        // Ensure there is enough stock to fulfill the order
+        if (orderedQuantity <= currentStockQuantity) {
+          // Update stock quantity
+          product.stockQuantity -= orderedQuantity;
+          await product.save();
+
+          // Track the updated stock quantity for this product
+          updatedStockQuantities[product._id] =
+            currentStockQuantity - orderedQuantity;
+        } else {
+          req.session.error = "The product you added is out of stock";
+          return res.redirect("/user/cart/checkout");
+        }
+      }
+    }
+
+    // Check if there was an error
+    if (req.session.error) {
+      return res.redirect("/user/cart/checkout");
+    }
+
+    // If no error occurred, proceed with creating the order
     const {
       name,
       email,
@@ -660,14 +695,16 @@ const userOrdersPost = async (req, res) => {
       pincode,
       paymentMethod,
       status: "Pending",
-      totalAmount: totalAmount,
+      totalAmount,
       orderDate: new Date(),
     });
 
     await order.save();
 
+    // Delete the user's cart after placing the order
     await Cart.deleteMany({ userId: user });
 
+    delete req.session.error;
     res.redirect("/user/orders");
   } catch (error) {
     console.error(error);

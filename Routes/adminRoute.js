@@ -7,7 +7,7 @@ const adminController = require("../Controllers/adminController");
 // Define storage for the uploaded files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./uploads"); // Set the destination folder where uploaded files will be stored
+    cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
     // Generate a unique filename for the uploaded file
@@ -34,7 +34,11 @@ router
   .post("/products/add", upload.array("images"), adminController.addProductPost)
   .post("/product/search", adminController.ProductSearch)
   .get("/products/edit/:id", adminController.editProductGet)
-  .post("/products/edit/:id",upload.array("images"),adminController.editProductPost)
+  .post(
+    "/products/edit/:id",
+    upload.array("images"),
+    adminController.editProductPost
+  )
   .delete("/products/delete/:id", adminController.deleteProduct)
   .patch("/products/list-unlist/:id", adminController.ListUnlistProduct);
 
@@ -54,13 +58,16 @@ router
 
 router
   .get("/banners", adminController.adminBannersGet)
-  .post("/banners",upload.single("bannerImage"),adminController.adminBannersPost)
+  .post(
+    "/banners",
+    upload.single("bannerImage"),
+    adminController.adminBannersPost
+  )
   .delete("/banners/delete/:id", adminController.deleteBanner);
 
 router
-.get("/orders",adminController.adminOrdersGet)
-.get("/orders/details/:id",adminController.adminOrdersDetailsGet)
-.post("/orders/details/:id",adminController.adminOrdersDetailsPost)
-
+  .get("/orders", adminController.adminOrdersGet)
+  .get("/orders/details/:id", adminController.adminOrdersDetailsGet)
+  .post("/orders/details/:id", adminController.adminOrdersDetailsPost);
 
 module.exports = router;

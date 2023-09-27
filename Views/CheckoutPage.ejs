@@ -101,157 +101,161 @@
 
     <div class="bg0 p-t-75 p-b-85">
       <form action="/user/orders" method="post">
-      <div class="container">
-        <h2 class="mb-4">Checkout</h2>
-        <div class="row">
-          <!-- Left Column - Personal Information Form -->
-          <div class="col-md-6">
-            <form>
-              <div class="form-group">
-                <label for="name">Name:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="name"
-                  name="name"
-                  required
-                />
+        <div class="container">
+          <h2 class="mb-4">Checkout</h2>
+
+          <div class="row">
+            <!-- Left Column - Personal Information Form -->
+            <div class="col-md-6">
+              <form>
+                <div class="form-group">
+                  <label for="name">Name:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="email">Email:</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="State">State:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="state"
+                    name="state"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="district">District:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="district"
+                    name="district"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="city">City:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="city"
+                    name="city"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number:</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="phone"
+                    name="phone"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="pincode">Pincode:</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="pincode"
+                    name="pincode"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="payment-method">Payment Method:</label>
+                  <select
+                    class="form-control"
+                    id="payment-method"
+                    name="paymentMethod"
+                    required
+                  >
+                    <option value="Cash On Delivery">Cash On Delivery</option>
+                    <option value="Online Payment">Online Payment</option>
+                    <!-- Add more options as needed -->
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right Column - Cart Summary -->
+            <div class="col-md-6">
+              <div
+                class="table-container"
+                style="max-height: 600px; overflow-y: auto"
+              >
+                <table class="table-shopping-cart">
+                  <tr class="table_head">
+                    <th class="column-1">Product</th>
+                    <th class="column-2"></th>
+                    <th class="column-3">Price</th>
+                    <th class="column-4">Quantity</th>
+                    <th class="column-5">Total</th>
+                  </tr>
+                  <% carts.forEach(cart => { %>
+                  <tr class="table_row">
+                    <td class="column-1">
+                      <div class="how-itemcart1">
+                        <img src="/uploads/<%= cart.productImg %>" alt="IMG" />
+                      </div>
+                    </td>
+                    <td class="column-2"><%= cart.name %></td>
+                    <td class="column-3">₹<%= cart.price %></td>
+                    <td class="column-4 text-center"><%= cart.quantity %></td>
+                    <td class="column-5">
+                      <span
+                        class="cart-item-total"
+                        data-total="<%= cart.price * cart.quantity %>"
+                      >
+                        ₹<%= cart.price * cart.quantity %>
+                      </span>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </table>
               </div>
-              <div class="form-group">
-                <label for="email">Email:</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  name="email"
-                  required
-                />
+
+              <!-- Total Amount Box -->
+              <div class="mt-4">
+                <div class="text-center">
+                  <h4>Total Amount:</h4>
+                  <p><span id="total-amount">₹0</span></p>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="State">State:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="state"
-                  name="state"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="district">District:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="district"
-                  name="district"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="city">City:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="city"
-                  name="city"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="phone">Phone Number:</label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="phone"
-                  name="phone"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="pincode">Pincode:</label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="pincode"
-                  name="pincode"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="payment-method">Payment Method:</label>
-                <select
-                  class="form-control"
-                  id="payment-method"
-                  name="paymentMethod"
-                  required
-                >
-                  <option value="Cash On Delivery">Cash On Delivery</option>
-                  <option value="Online Payment">Online Payment</option>
-                  <!-- Add more options as needed -->
-                </select>
-              </div>
-            </form>
+            </div>
+            <% if (locals.error) { %>
+            <p style="color: red"><%= error %></p>
+            <% } %>
           </div>
 
-          <!-- Right Column - Cart Summary -->
-          <div class="col-md-6">
-            <div
-              class="table-container"
-              style="max-height: 600px; overflow-y: auto"
+          <!-- Place Order Button -->
+          <div class="text-center mt-4">
+            <button
+              type="submit"
+              class="flex-c-m stext-101 cl0 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer mx-auto"
+              style="width: 15%; height: 50px"
             >
-              <table class="table-shopping-cart">
-                <tr class="table_head">
-                  <th class="column-1">Product</th>
-                  <th class="column-2"></th>
-                  <th class="column-3">Price</th>
-                  <th class="column-4">Quantity</th>
-                  <th class="column-5">Total</th>
-                </tr>
-                <% carts.forEach(cart => { %>
-                <tr class="table_row">
-                  <td class="column-1">
-                    <div class="how-itemcart1">
-                      <img src="/uploads/<%= cart.productImg %>" alt="IMG" />
-                    </div>
-                  </td>
-                  <td class="column-2"><%= cart.name %></td>
-                  <td class="column-3">₹<%= cart.price %></td>
-                  <td class="column-4 text-center"><%= cart.quantity %></td>
-                  <td class="column-5">
-                    <span
-                      class="cart-item-total"
-                      data-total="<%= cart.price * cart.quantity %>"
-                    >
-                      ₹<%= cart.price * cart.quantity %>
-                    </span>
-                  </td>
-                </tr>
-                <% }) %>
-              </table>
-            </div>
-
-            <!-- Total Amount Box -->
-            <div class="mt-4">
-              <div class="text-center">
-                <h4>Total Amount:</h4>
-                <p><span id="total-amount">₹0</span></p>
-              </div>
-            </div>
+              Place order
+            </button>
           </div>
         </div>
-
-        <!-- Place Order Button -->
-        <div class="text-center mt-4">
-          <button
-          type="submit"
-            class="flex-c-m stext-101 cl0 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer mx-auto"
-            style="width: 15%; height: 50px"
-          >
-            Place order
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
     </div>
 
     <!-- Footer -->
@@ -379,8 +383,6 @@
         <i class="zmdi zmdi-chevron-up"></i>
       </span>
     </div>
-
-
 
     <!--===============================================================================================-->
 

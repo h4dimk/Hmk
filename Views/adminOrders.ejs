@@ -11,7 +11,7 @@
 
     <!-- Search Bar -->
     <div class="container mt-5">
-      <form action="/admin/orders/search" method="post">
+      <form action="#" method="post">
         <div class="row justify-content-center">
           <div class="col-md-6">
             <div class="input-group">
@@ -36,6 +36,16 @@
     <!-- Order List -->
     <div class="container mt-4">
       <div class="order-list">
+        <% if(orders.length === 0){%>
+        <div class="text-center">
+          <img
+            id="empty-cart-image"
+            src="/images/No Result.png"
+            alt="Empty Cart"
+            style="max-width: 100%"
+          />
+        </div>
+        <%}else{%>
         <h3 class="mb-3">Order List</h3>
         <table class="table table-bordered">
           <thead class="table-primary">
@@ -78,6 +88,7 @@
             <% }); %>
           </tbody>
         </table>
+        <%}%>
       </div>
     </div>
   </div>

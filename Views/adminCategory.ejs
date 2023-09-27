@@ -1,122 +1,136 @@
 <%- include('header') %><%- include('adminlayout') %>
 
-<div id="content" >
+<div id="content">
   <div class="container">
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <h2>Category Management</h2>
-    </div>
-  </nav>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <h2>Category Management</h2>
+      </div>
+    </nav>
 
-  <div class="container mt-4">
-    <div class="row">
-      <!-- Add Category Form -->
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-header admin-login">
-            <h4>Add Category</h4>
-          </div>
-          <div class="card-body">
-            <% if (locals.error) { %>
+    <div class="container mt-4">
+      <div class="row">
+        <!-- Add Category Form -->
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header admin-login">
+              <h4>Add Category</h4>
+            </div>
+            <div class="card-body">
+              <% if (locals.error) { %>
               <p class="error-message"><%= error %></p>
               <% } %>
-            <form action="/admin/categories/add" method="POST">
-              <div class="mb-3">
-                <label for="categoryName" class="form-label">Category Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="categoryName"
-                  name="categoryName"
-                />
-              </div>
-              <button type="submit" class="btn admin-login">Add Category</button>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search Bar -->
-      <div class="col-md-8">
-        <form action="/admin/categories/search" method="POST">
-          <div class="input-group mt-3">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search..."
-              id="searchInput"
-              name="search"
-            />
-            <div class="input-group-append">
-              <button class="btn btn-primary" type="submit" id="searchButton">
-                Search
-              </button>
+              <form action="/admin/categories/add" method="POST">
+                <div class="mb-3">
+                  <label for="categoryName" class="form-label"
+                    >Category Name</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="categoryName"
+                    name="categoryName"
+                  />
+                </div>
+                <button type="submit" class="btn admin-login">
+                  Add Category
+                </button>
+              </form>
             </div>
           </div>
-        </form>
-      </div>
-    </div>
-  </div>
+        </div>
 
-  <!-- List of Categories -->
-  <ul class="list-group mt-4">
-    <h3>Categories</h3>
-
-    <% categories.forEach(category => { %>
-    <li class="list-group-item">
-      <div class="category-container">
-        <span class="category-name"><%= category.name %></span>
-        <div class="float-end">
-          <!-- Toggle button -->
-          <button
-            class="btn btn-secondary btn-sm toggle-category"
-            data-category-id="<%= category._id %>"
-          >
-            <% if (category.islisted) { %> Unlist <% } else { %> List <% } %>
-          </button>
-          <!-- Edit button -->
-          <button
-            class="btn btn-primary btn-sm edit-category"
-            data-category-id="<%= category._id %>"
-          >
-            Edit
-          </button>
-          <!-- Delete button -->
-          <button
-            class="btn btn-danger btn-sm delete-category"
-            onclick="deleteCategory('<%= category._id %>')"
-          >
-            Delete
-          </button>
-          <!-- Save button (hidden initially) -->
-          <button
-            class="btn btn-success btn-sm save-category"
-            data-category-id="<%= category._id %>"
-            style="display: none"
-          >
-            Save
-          </button>
-          <!-- Input field for editing (hidden initially) -->
-          <input
-            type="text"
-            class="form-control edit-category-input"
-            style="display: none"
-            placeholder="Edit Category name"
-          />
+        <!-- Search Bar -->
+        <div class="col-md-8">
+          <form action="/admin/categories/search" method="POST">
+            <div class="input-group mt-3">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search..."
+                id="searchInput"
+                name="search"
+              />
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit" id="searchButton">
+                  Search
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    </li>
-    <% }); %>
-  </ul>
-</div>
+    </div>
+
+    <!-- List of Categories -->
+    <ul class="list-group mt-4">
+      <% if(categories.length === 0){%>
+      <div class="text-center">
+        <img
+          id="empty-cart-image"
+          src="/images/No Result.png"
+          alt="Empty Cart"
+          style="max-width: 100%"
+        />
+      </div>
+      <%}else{%>
+      <h3>Categories</h3>
+
+      <% categories.forEach(category => { %>
+      <li class="list-group-item">
+        <div class="category-container">
+          <span class="category-name"><%= category.name %></span>
+          <div class="float-end">
+            <!-- Toggle button -->
+            <button
+              class="btn btn-secondary btn-sm toggle-category"
+              data-category-id="<%= category._id %>"
+            >
+              <% if (category.islisted) { %> Unlist <% } else { %> List <% } %>
+            </button>
+            <!-- Edit button -->
+            <button
+              class="btn btn-primary btn-sm edit-category"
+              data-category-id="<%= category._id %>"
+            >
+              Edit
+            </button>
+            <!-- Delete button -->
+            <button
+              class="btn btn-danger btn-sm delete-category"
+              onclick="deleteCategory('<%= category._id %>')"
+            >
+              Delete
+            </button>
+            <!-- Save button (hidden initially) -->
+            <button
+              class="btn btn-success btn-sm save-category"
+              data-category-id="<%= category._id %>"
+              style="display: none"
+            >
+              Save
+            </button>
+            <!-- Input field for editing (hidden initially) -->
+            <input
+              type="text"
+              class="form-control edit-category-input"
+              style="display: none"
+              placeholder="Edit Category name"
+            />
+          </div>
+        </div>
+      </li>
+      <% }); %> <%}%>
+    </ul>
+  </div>
 </div>
 
 <script>
   function deleteCategory(id) {
-    fetch("/admin/categories/delete/"+id,{
-      method:"delete"
-    })
+    fetch("/admin/categories/delete/" + id, {
+      method: "delete",
+    });
     window.location.reload();
   }
   $(document).ready(function () {
