@@ -304,14 +304,14 @@ const addProductPost = async (req, res) => {
       return res.redirect("/admin/products/add");
     }
     if (stockQuantity < 0) {
-      // Check if the price is less than zero
+      // Check if the Stock is less than zero
       req.session.error = "Stock Quantity cannot be negative value";
       return res.redirect("/admin/products/add");
     }
 
     const product = new Product({
       name: name,
-      description: description,
+      description: description.trim(),
       price: price,
       category: category,
       imagePath: filenames,
@@ -351,9 +351,16 @@ const editProductPost = async (req, res) => {
     const filenames = req.files ? req.files.map((file) => file.filename) : null;
     console.log(req.file);
     if (price < 0) {
+      // Check if the Price is less than zero
       req.session.error = "Price cannot be negative value";
       return res.redirect(`/admin/products/edit/${productId}`);
     }
+    if (stockQuantity < 0) {
+      // Check if the Stock is less than zero
+      req.session.error = "Stock Quantity cannot be negative value";
+      return res.redirect("/admin/products/add");
+    }
+
     const product = await Product.findById(productId);
 
     if (!product) {
@@ -362,7 +369,7 @@ const editProductPost = async (req, res) => {
 
     // Update the product fields
     product.name = name;
-    product.description = description;
+    product.description = description.trim();
     product.price = price;
     product.category = category;
     product.stockQuantity = stockQuantity;

@@ -35,6 +35,16 @@
 
     <!-- User List -->
     <div class="user-list mt-4">
+      <% if(users.length === 0){%>
+        <div class="text-center">
+          <img
+            id="empty-cart-image"
+            src="/images/No Result.png"
+            alt="Empty Cart"
+            style="max-width: 100%"
+          />
+        </div>
+        <%}else{%>
       <table class="table table-bordered">
         <thead class="table-primary">
           <tr>
@@ -70,6 +80,7 @@
           <% }); %>
         </tbody>
       </table>
+      <%}%>
     </div>
   </div>
 </div>

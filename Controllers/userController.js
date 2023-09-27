@@ -48,6 +48,7 @@ const homeGet = async (req, res) => {
   try {
     const banners = await Banner.find();
     const login = req.session.login;
+
     console.log("Now the user is " + login);
     res.render("LandingPage", { login, banners });
   } catch (error) {
@@ -167,7 +168,6 @@ const userLoginPageGet = (req, res) => {
 const userLogout = (req, res) => {
   try {
     if (req.session.login) {
-      delete req.session.login;
       req.session.destroy();
       return res.redirect("/user/login");
     }
