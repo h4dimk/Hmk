@@ -250,13 +250,10 @@ const otpEntryPost = async (req, res) => {
 };
 
 const UserShopGet = async (req, res) => {
-  // Get the current page number from query parameters, default to 1 if not provided
   const page = parseInt(req.query.page) || 1;
 
-  // Number of products to display per page
   const limit = 8;
 
-  // Calculate the number of products to skip based on the current page
   const skip = (page - 1) * limit;
 
   // Fetch products for the current page
@@ -277,6 +274,7 @@ const UserShopGet = async (req, res) => {
 
 const ShopSearch = async (req, res) => {
   const searchText = req.body.search;
+  const page = parseInt(req.query.page) || 1;
 
   try {
     const products = await Product.find({
@@ -286,7 +284,23 @@ const ShopSearch = async (req, res) => {
       ],
     });
 
-    res.render("UserShop", { products });
+    const totalProducts = products.length;
+
+    const limit = 8;
+
+    const skip = (page - 1) * limit;
+
+    // Slice the products array to get the products for the current page
+    const slicedProducts = products.slice(skip, skip + limit);
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.render("UserShop", {
+      products: slicedProducts,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
     console.log(error);
   }
