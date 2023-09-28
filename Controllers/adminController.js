@@ -340,7 +340,6 @@ const editProductGet = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    // Handle errors here
   }
 };
 
@@ -381,11 +380,10 @@ const editProductPost = async (req, res) => {
 
     await product.save();
 
-    // Redirect to the product list or show a success message
+    // Redirect to the product list
     res.redirect("/admin/products");
   } catch (error) {
     console.error(error);
-    // Handle errors here
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -480,11 +478,9 @@ const adminBannersPost = async (req, res) => {
     // Save the banner to the database
     await newBanner.save();
 
-    // Redirect to the banner list page or perform any other desired action
     res.redirect("/admin/banners"); // Redirect to the banner list page
   } catch (error) {
     console.error("Error adding banner:", error);
-    // Handle the error and render an error page or display an error message
     res.status(500).render("error", {
       message: "Internal server error. Please try again later.",
     });

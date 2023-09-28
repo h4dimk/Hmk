@@ -36,7 +36,7 @@ const sendOTPToUser = (email, otp) => {
 };
 
 function generateRandomOTP() {
-  // Generate a random number between 100000 and 999999
+  // Generate a random number
   const min = 100000;
   const max = 999999;
   const otp = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -250,9 +250,29 @@ const otpEntryPost = async (req, res) => {
 };
 
 const UserShopGet = async (req, res) => {
-  const products = await Product.find();
+  // Get the current page number from query parameters, default to 1 if not provided
+  const page = parseInt(req.query.page) || 1;
 
-  res.render("UserShop", { products });
+  // Number of products to display per page
+  const limit = 8;
+
+  // Calculate the number of products to skip based on the current page
+  const skip = (page - 1) * limit;
+
+  // Fetch products for the current page
+  const products = await Product.find().skip(skip).limit(limit).exec();
+
+  // Calculate the total number of products (for pagination)
+  const totalProducts = await Product.countDocuments();
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(totalProducts / limit);
+
+  res.render("UserShop", {
+    products,
+    currentPage: page,
+    totalPages,
+  });
 };
 
 const ShopSearch = async (req, res) => {
