@@ -128,6 +128,7 @@
                   src="/uploads/<%= product.imagePath[0]%>"
                   alt="Product Image 1"
                   class="img-fluid"
+                  onclick="openImageModal('/uploads/<%= product.imagePath[0]%>')"
                 />
               </div>
               <div class="carousel-item">
@@ -135,6 +136,7 @@
                   src="/uploads/<%= product.imagePath[1]%>"
                   alt="Product Image 2"
                   class="img-fluid"
+                  onclick="openImageModal('/uploads/<%= product.imagePath[1]%>')"
                 />
               </div>
               <div class="carousel-item">
@@ -142,6 +144,7 @@
                   src="/uploads/<%= product.imagePath[2]%>"
                   alt="Product Image 3"
                   class="img-fluid"
+                  onclick="openImageModal('/uploads/<%= product.imagePath[2]%>')"
                 />
               </div>
               <!-- Add more slides for additional images -->
@@ -346,7 +349,44 @@
       </span>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="modalImage" />
+    </div>
+
     <!--===============================================================================================-->
+
+    <script>
+      // Open the image modal with the clicked image
+      function openImageModal(imageUrl) {
+        var modal = document.getElementById("imageModal");
+        var modalImage = document.getElementById("modalImage");
+
+        modal.style.display = "block";
+        modalImage.src = imageUrl;
+      }
+
+      // Close the image modal
+      function closeImageModal() {
+        var modal = document.getElementById("imageModal");
+        modal.style.display = "none";
+      }
+
+      // Close the modal when the user clicks the close button (×)
+      var closeButton = document.querySelector(".close");
+      if (closeButton) {
+        closeButton.addEventListener("click", closeImageModal);
+      }
+
+      // Close the modal when the user clicks anywhere outside the image
+      window.addEventListener("click", function (event) {
+        var modal = document.getElementById("imageModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      });
+    </script>
 
     <!--===============================================================================================-->
     <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
