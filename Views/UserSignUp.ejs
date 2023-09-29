@@ -57,12 +57,8 @@
                   name="password"
                 />
                 <div class="input-group-append">
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    id="togglePassword"
-                  >
-                    Show
+                  <button type="button" class="btn" id="togglePassword">
+                    <i class="fa fa-eye" id="passwordToggleIcon"></i>
                   </button>
                 </div>
               </div>
@@ -79,16 +75,13 @@
                   name="confirmPassword"
                 />
                 <div class="input-group-append">
-                  <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    id="toggleConfrimPassword"
-                  >
-                    Show
+                  <button type="button" class="btn" id="toggleConfirmPassword">
+                    <i class="fa fa-eye" id="confirmPasswordToggleIcon"></i>
                   </button>
                 </div>
               </div>
             </div>
+
             <button type="submit" class="btn btn-primary">Sign Up</button>
           </form>
         </div>
@@ -99,30 +92,43 @@
 
 <script>
   const passwordInput = document.getElementById("password");
-  const confirmPasswordInput = document.getElementById("confirmPassword");
   const togglePasswordButton = document.getElementById("togglePassword");
+  const passwordToggleIcon = document.getElementById("passwordToggleIcon");
+  let isPasswordVisible = false;
+
+  const confirmPasswordInput = document.getElementById("confirmPassword");
   const toggleConfirmPasswordButton = document.getElementById(
-    "toggleConfrimPassword"
+    "toggleConfirmPassword"
   );
+  const confirmPasswordToggleIcon = document.getElementById(
+    "confirmPasswordToggleIcon"
+  );
+  let isConfirmPasswordVisible = false;
 
   togglePasswordButton.addEventListener("click", function () {
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      togglePasswordButton.textContent = "Hide";
-    } else {
+    if (isPasswordVisible) {
       passwordInput.type = "password";
-      togglePasswordButton.textContent = "Show";
+      passwordToggleIcon.classList.remove("fa-eye-slash");
+      passwordToggleIcon.classList.add("fa-eye");
+    } else {
+      passwordInput.type = "text";
+      passwordToggleIcon.classList.remove("fa-eye");
+      passwordToggleIcon.classList.add("fa-eye-slash");
     }
+    isPasswordVisible = !isPasswordVisible;
   });
 
-  toggleConfrimPassword.addEventListener("click", function () {
-    if (confirmPasswordInput.type === "password") {
-      confirmPasswordInput.type = "text";
-      toggleConfrimPassword.textContent = "Hide";
-    } else {
+  toggleConfirmPasswordButton.addEventListener("click", function () {
+    if (isConfirmPasswordVisible) {
       confirmPasswordInput.type = "password";
-      toggleConfrimPassword.textContent = "Show";
+      confirmPasswordToggleIcon.classList.remove("fa-eye-slash");
+      confirmPasswordToggleIcon.classList.add("fa-eye");
+    } else {
+      confirmPasswordInput.type = "text";
+      confirmPasswordToggleIcon.classList.remove("fa-eye");
+      confirmPasswordToggleIcon.classList.add("fa-eye-slash");
     }
+    isConfirmPasswordVisible = !isConfirmPasswordVisible;
   });
 </script>
 
