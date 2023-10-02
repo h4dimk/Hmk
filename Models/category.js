@@ -9,7 +9,6 @@ const CategorySchema = new mongoose.Schema({
     type: Boolean,
     default: true, 
   },
-  // You can add more fields to the category schema as needed.
 });
 
 const Category = mongoose.model("Category", CategorySchema);
