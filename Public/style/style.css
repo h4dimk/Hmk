@@ -1,10 +1,79 @@
-/* style.css */
+/* styles.css */
 
-body,
-html {
-  height: 100%;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
   margin: 0;
   padding: 0;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+/* Navigation menu styles */
+.menu {
+  display: flex;
+  background-color: #bad6f3;
+  padding: 10px;
+}
+
+.menu a {
+  color: #000000;
+  text-decoration: none;
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+
+/* Sales report section styles */
+.sales-report {
+  margin-top: 20px;
+}
+
+.report-heading {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.report-options {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.report-options label {
+  margin-right: 10px;
+}
+
+.report-options input[type="date"] {
+  padding: 5px;
+}
+
+.report-options button {
+  background-color: #00a859;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.report-options button:hover {
+  background-color: #008746;
+}
+
+.report-results {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+/* Sample chart styles (you can replace with your chart library) */
+.chart {
+  height: 300px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 /* Style the background of the login card */

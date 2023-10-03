@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 const Banner = require("../Models/banner");
 const Cart = require("../Models/cart");
 const Order = require("../Models/order");
+const Category = require("../Models/category");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -35,7 +36,7 @@ const sendOTPToUser = (email, otp) => {
   });
 };
 
-function generateRandomOTP() {
+function generateRandomNum() {
   // Generate a random number
   const min = 100000;
   const max = 999999;
@@ -119,7 +120,7 @@ const userSignUpPost = async (req, res) => {
       return res.redirect("/user/signup");
     }
 
-    const otp = generateRandomOTP();
+    const otp = generateRandomNum();
 
     const existingEmail = await userModel.findOne({ email });
     if (existingEmail) {
@@ -250,31 +251,43 @@ const otpEntryPost = async (req, res) => {
 };
 
 const UserShopGet = async (req, res) => {
+  delete req.session.error;
+
   const page = parseInt(req.query.page) || 1;
-
   const limit = 8;
-
   const skip = (page - 1) * limit;
 
-  // Fetch products for the current page
-  const products = await Product.find().skip(skip).limit(limit).exec();
+  const minPrice = parseFloat(req.query.minPrice) || 0;
+  const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
 
-  // Calculate the total number of products (for pagination)
-  const totalProducts = await Product.countDocuments();
+  try {
+    const filteredProducts = await Product.find({
+      price: { $gte: minPrice, $lte: maxPrice },
+    }).exec();
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(totalProducts / limit);
+    const totalFilteredProducts = filteredProducts.length;
 
-  res.render("UserShop", {
-    products,
-    currentPage: page,
-    totalPages,
-  });
+    const totalPages = Math.ceil(totalFilteredProducts / limit);
+
+    const products = filteredProducts.slice(skip, skip + limit);
+
+    res.render("UserShop", {
+      products,
+      currentPage: page,
+      totalPages,
+      selectedMinPrice: minPrice,
+      selectedMaxPrice: maxPrice,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const ShopSearch = async (req, res) => {
   const searchText = req.body.search;
   const page = parseInt(req.query.page) || 1;
+  const selectedMinPrice = parseFloat(req.query.minPrice) || 0; 
+  const selectedMaxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
 
   try {
     const products = await Product.find({
@@ -282,6 +295,7 @@ const ShopSearch = async (req, res) => {
         { name: { $regex: searchText, $options: "i" } },
         { category: { $regex: searchText, $options: "i" } },
       ],
+      price: { $gte: selectedMinPrice, $lte: selectedMaxPrice },
     });
 
     const totalProducts = products.length;
@@ -290,16 +304,16 @@ const ShopSearch = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Slice the products array to get the products for the current page
     const slicedProducts = products.slice(skip, skip + limit);
 
-    // Calculate the total number of pages
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render("UserShop", {
       products: slicedProducts,
       currentPage: page,
       totalPages,
+      selectedMinPrice, 
+      selectedMaxPrice,
     });
   } catch (error) {
     console.log(error);
@@ -336,7 +350,7 @@ const forgotPasswordPost = async (req, res) => {
     }
 
     // Generate a random OTP
-    const otp = generateRandomOTP();
+    const otp = generateRandomNum();
 
     req.session.frgtpass = true;
 
@@ -488,6 +502,8 @@ const resetPasswordPost = async (req, res) => {
 
 const userCartGet = async (req, res) => {
   try {
+    delete req.session.error;
+
     const user = req.session.login;
     const carts = await Cart.find({ userId: user });
     res.render("UserCart", { carts });
@@ -704,6 +720,7 @@ const userOrdersPost = async (req, res) => {
     if (req.session.error) {
       return res.redirect("/user/cart/checkout");
     }
+    delete req.session.error;
 
     // If no error occurred, proceed with creating the order
     const {
@@ -718,6 +735,7 @@ const userOrdersPost = async (req, res) => {
     } = req.body;
 
     const order = new Order({
+      orderId: generateRandomNum(),
       userId: user,
       products: carts,
       name,
