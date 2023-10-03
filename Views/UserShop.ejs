@@ -430,7 +430,7 @@
               class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm"
             >
               <!-- Sort By -->
-              <div class="filter-col1 p-r-15 p-b-27">
+              <!-- <div class="filter-col1 p-r-15 p-b-27">
                 <div class="mtext-102 cl2 p-b-15">Sort By</div>
                 <ul>
                   <li class="p-b-6">
@@ -444,7 +444,7 @@
                     >
                   </li>
                 </ul>
-              </div>
+              </div> -->
 
               <!-- Price Range -->
               <div class="filter-col1 p-r-15 p-b-27">
@@ -560,30 +560,45 @@
           </div>
           <%}})%>
         </div>
-
-        <!-- Pagination Controls -->
-        <div class="pagination">
-          <% if (currentPage > 1) { %>
-          <a
-            href="?page=<%= currentPage - 1 %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
-            class="prev"
-            >Previous</a
-          >
-          <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
-          <a
-            href="?page=<%= i %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
-            class="<%= i === currentPage ? 'active' : '' %>"
-            ><%= i %></a
-          >
-          <% } %> <% if (currentPage < totalPages) { %>
-          <a
-            href="?page=<%= currentPage + 1 %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
-            class="next"
-            >Next</a
-          >
-          <% } %>
+        <div class="text-center">
+          <!-- Pagination Controls -->
+          <div id="unfilteredPagination" class="pagination">
+            <% if (currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>" class="prev">Previous</a>
+            <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+            <a
+              href="?page=<%= i %>"
+              class="<%= i === currentPage ? 'active' : '' %>"
+              ><%= i %></a
+            >
+            <% } %> <% if (currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>" class="next">Next</a>
+            <% } %>
+          </div>
+          <!-- Pagination Controls for Filtered Products -->
+          <div id="filteredPagination" class="pagination">
+            <% if (currentPage > 1) { %>
+            <a
+              href="?page=<%= currentPage - 1 %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
+              class="prev"
+              >Previous</a
+            >
+            <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+            <a
+              href="?page=<%= i %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
+              class="<%= i === currentPage ? 'active' : '' %>"
+              ><%= i %></a
+            >
+            <% } %> <% if (currentPage < totalPages) { %>
+            <a
+              href="?page=<%= currentPage + 1 %>&minPrice=<%= selectedMinPrice %>&maxPrice=<%= selectedMaxPrice %>"
+              class="next"
+              >Next</a
+            >
+            <% } %>
+          </div>
+          <%}%>
         </div>
-        <%}%>
       </div>
     </div>
 
@@ -735,6 +750,30 @@
     </div>
 
     <!--===============================================================================================-->
+
+    <script>
+      // Get references to the pagination divs
+      const unfilteredPagination = document.getElementById(
+        "unfilteredPagination"
+      );
+      const filteredPagination = document.getElementById("filteredPagination");
+
+      // Check if a filter is applied based on URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const minPrice = urlParams.get("minPrice");
+      const maxPrice = urlParams.get("maxPrice");
+
+      // Show/hide the pagination controls based on filter presence
+      if (!minPrice && !maxPrice) {
+        // No filter applied, show unfiltered pagination
+        unfilteredPagination.style.display = "block";
+        filteredPagination.style.display = "none";
+      } else {
+        // Filter applied, show filtered pagination
+        unfilteredPagination.style.display = "none";
+        filteredPagination.style.display = "block";
+      }
+    </script>
 
     <script>
       function filterByPrice(minPrice, maxPrice) {
