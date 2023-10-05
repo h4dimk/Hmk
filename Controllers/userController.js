@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 const userModel = require("../Models/user");
 const Product = require("../Models/products");
 const nodemailer = require("nodemailer");
@@ -6,6 +7,7 @@ const Banner = require("../Models/banner");
 const Cart = require("../Models/cart");
 const Order = require("../Models/order");
 const Category = require("../Models/category");
+const RazorPay = require("razorpay");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -36,13 +38,31 @@ const sendOTPToUser = (email, otp) => {
   });
 };
 
-function generateRandomNum() {
+const instance = new RazorPay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+function generateRandomOtp() {
   // Generate a random number
   const min = 100000;
   const max = 999999;
   const otp = Math.floor(Math.random() * (max - min + 1)) + min;
 
-  return otp.toString(); // Convert the number to a string
+  return otp.toString();
+}
+
+function generateRandomOrderId() {
+  // Get the current timestamp in milliseconds
+  const timestamp = new Date().getTime();
+
+  // Generate a random number (you can customize the length as needed)
+  const randomPart = Math.floor(Math.random() * 1000000);
+
+  // Combine timestamp and random number to create the orderId
+  const orderId = `${timestamp}${randomPart}`;
+
+  return orderId.toString();
 }
 
 const homeGet = async (req, res) => {
@@ -120,7 +140,7 @@ const userSignUpPost = async (req, res) => {
       return res.redirect("/user/signup");
     }
 
-    const otp = generateRandomNum();
+    const otp = generateRandomOtp();
 
     const existingEmail = await userModel.findOne({ email });
     if (existingEmail) {
@@ -286,7 +306,7 @@ const UserShopGet = async (req, res) => {
 const ShopSearch = async (req, res) => {
   const searchText = req.body.search;
   const page = parseInt(req.query.page) || 1;
-  const selectedMinPrice = parseFloat(req.query.minPrice) || 0; 
+  const selectedMinPrice = parseFloat(req.query.minPrice) || 0;
   const selectedMaxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
 
   try {
@@ -312,7 +332,7 @@ const ShopSearch = async (req, res) => {
       products: slicedProducts,
       currentPage: page,
       totalPages,
-      selectedMinPrice, 
+      selectedMinPrice,
       selectedMaxPrice,
     });
   } catch (error) {
@@ -350,7 +370,7 @@ const forgotPasswordPost = async (req, res) => {
     }
 
     // Generate a random OTP
-    const otp = generateRandomNum();
+    const otp = generateRandomOtp();
 
     req.session.frgtpass = true;
 
@@ -671,7 +691,6 @@ const userOrdersGet = async (req, res) => {
   try {
     const userId = req.session.login;
     const orders = await Order.find({ userId });
-
     res.render("UserOrders", { orders });
   } catch (error) {
     console.error(error);
@@ -680,49 +699,9 @@ const userOrdersGet = async (req, res) => {
 
 const userOrdersPost = async (req, res) => {
   try {
-    const user = req.session.login;
-    const carts = await Cart.find({ userId: user });
+    console.log(req.body);
+    console.log("called");
 
-    // Calculate the total amount on the server-side
-    let totalAmount = 0;
-
-    // Track product IDs and their ordered quantities
-    const updatedStockQuantities = {};
-
-    // Process each item in the user's cart
-    for (const cartItem of carts) {
-      totalAmount += cartItem.price * cartItem.quantity;
-
-      // Decrease stock quantity for each product in the order
-      const product = await Product.findById(cartItem.productId);
-
-      if (product) {
-        const orderedQuantity = cartItem.quantity;
-        const currentStockQuantity = product.stockQuantity;
-
-        // Ensure there is enough stock to fulfill the order
-        if (orderedQuantity <= currentStockQuantity) {
-          // Update stock quantity
-          product.stockQuantity -= orderedQuantity;
-          await product.save();
-
-          // Track the updated stock quantity for this product
-          updatedStockQuantities[product._id] =
-            currentStockQuantity - orderedQuantity;
-        } else {
-          req.session.error = "The product you added is out of stock";
-          return res.redirect("/user/cart/checkout");
-        }
-      }
-    }
-
-    // Check if there was an error
-    if (req.session.error) {
-      return res.redirect("/user/cart/checkout");
-    }
-    delete req.session.error;
-
-    // If no error occurred, proceed with creating the order
     const {
       name,
       email,
@@ -734,32 +713,110 @@ const userOrdersPost = async (req, res) => {
       paymentMethod,
     } = req.body;
 
-    const order = new Order({
-      orderId: generateRandomNum(),
-      userId: user,
-      products: carts,
-      name,
-      email,
-      state,
-      district,
-      city,
-      phone,
-      pincode,
-      paymentMethod,
-      status: "Pending",
-      totalAmount,
-      orderDate: new Date(),
-    });
+    const user = req.session.login;
+    const carts = await Cart.find({ userId: user });
 
-    await order.save();
+    if (paymentMethod === "Cash On Delivery") {
+      let totalAmount = 0;
 
-    // Delete the user's cart after placing the order
-    await Cart.deleteMany({ userId: user });
+      const updatedStockQuantities = {};
 
-    delete req.session.error;
-    res.redirect("/user/orders");
+      for (const cartItem of carts) {
+        totalAmount += cartItem.price * cartItem.quantity;
+
+        const product = await Product.findById(cartItem.productId);
+
+        if (product) {
+          const orderedQuantity = cartItem.quantity;
+          const currentStockQuantity = product.stockQuantity;
+
+          if (orderedQuantity <= currentStockQuantity) {
+            product.stockQuantity -= orderedQuantity;
+            await product.save();
+
+            updatedStockQuantities[product._id] =
+              currentStockQuantity - orderedQuantity;
+          } else {
+            req.session.error = "The product you added is out of stock";
+            return res.redirect("/user/cart/checkout");
+          }
+        }
+      }
+
+      const orderId = generateRandomOrderId();
+
+      const order = new Order({
+        orderId: orderId,
+        userId: user,
+        products: carts,
+        name,
+        email,
+        state,
+        district,
+        city,
+        phone,
+        pincode,
+        paymentMethod,
+        status: "Pending",
+        totalAmount,
+        orderDate: new Date(),
+      });
+
+      await order.save();
+
+      // Delete the user's cart after placing the order
+      await Cart.deleteMany({ userId: user });
+      delete req.session.error;
+
+      return res.json({ cod: true });
+    } else if (paymentMethod === "Online Payment") {
+      let totalAmount = 0;
+
+      const updatedStockQuantities = {};
+
+      for (const cartItem of carts) {
+        totalAmount += cartItem.price * cartItem.quantity;
+
+        const product = await Product.findById(cartItem.productId);
+
+        if (product) {
+          const orderedQuantity = cartItem.quantity;
+          const currentStockQuantity = product.stockQuantity;
+
+          if (orderedQuantity <= currentStockQuantity) {
+            product.stockQuantity -= orderedQuantity;
+            await product.save();
+
+            updatedStockQuantities[product._id] =
+              currentStockQuantity - orderedQuantity;
+          } else {
+            req.session.error = "The product you added is out of stock";
+            return res.redirect("/user/cart/checkout");
+          }
+        }
+      }
+      const orderId = generateRandomOrderId();
+      let options = {
+        amount: totalAmount,
+        currency: "INR",
+        receipt: orderId,
+      };
+
+      instance.orders.create(options, (err, order) => {
+        if (!err) {
+          console.log(order);
+
+          res.json({ order, online: true });
+        } else {
+          // Handle payment error
+          console.log(err);
+          // Send an error response to the client
+          res.status(500).json({ error: "Payment failed" });
+        }
+      });
+    }
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 

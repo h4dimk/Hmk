@@ -100,162 +100,162 @@
     </header>
 
     <div class="bg0 p-t-75 p-b-85">
-      <form action="/user/orders" method="post">
-        <div class="container">
-          <h2 class="mb-4">Checkout</h2>
+      <div class="container">
+        <h2 class="mb-4">Checkout</h2>
 
-          <div class="row">
-            <!-- Left Column - Personal Information Form -->
-            <div class="col-md-6">
-              <form>
-                <div class="form-group">
-                  <label for="name">Name:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    name="name"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="email">Email:</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="State">State:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="state"
-                    name="state"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="district">District:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="district"
-                    name="district"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="city">City:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="city"
-                    name="city"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="phone">Phone Number:</label>
-                  <input
-                    type="tel"
-                    class="form-control"
-                    id="phone"
-                    name="phone"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="pincode">Pincode:</label>
-                  <input
-                    type="tel"
-                    class="form-control"
-                    id="pincode"
-                    name="pincode"
-                    required
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="payment-method">Payment Method:</label>
-                  <select
-                    class="form-control"
-                    id="payment-method"
-                    name="paymentMethod"
-                    required
-                  >
-                    <option value="Cash On Delivery">Cash On Delivery</option>
-                    <option value="Online Payment">Online Payment</option>
-                    <!-- Add more options as needed -->
-                  </select>
-                </div>
-              </form>
-            </div>
-
-            <!-- Right Column - Cart Summary -->
-            <div class="col-md-6">
-              <div
-                class="table-container"
-                style="max-height: 600px; overflow-y: auto"
-              >
-                <table class="table-shopping-cart">
-                  <tr class="table_head">
-                    <th class="column-1">Product</th>
-                    <th class="column-2"></th>
-                    <th class="column-3">Price</th>
-                    <th class="column-4">Quantity</th>
-                    <th class="column-5">Total</th>
-                  </tr>
-                  <% carts.forEach(cart => { %>
-                  <tr class="table_row">
-                    <td class="column-1">
-                      <div class="how-itemcart1">
-                        <img src="/uploads/<%= cart.productImg %>" alt="IMG" />
-                      </div>
-                    </td>
-                    <td class="column-2"><%= cart.name %></td>
-                    <td class="column-3">₹<%= cart.price %></td>
-                    <td class="column-4 text-center"><%= cart.quantity %></td>
-                    <td class="column-5">
-                      <span
-                        class="cart-item-total"
-                        data-total="<%= cart.price * cart.quantity %>"
-                      >
-                        ₹<%= cart.price * cart.quantity %>
-                      </span>
-                    </td>
-                  </tr>
-                  <% }) %>
-                </table>
+        <div class="row">
+          <!-- Left Column - Personal Information Form -->
+          <div class="col-md-6">
+            <form>
+              <div class="form-group">
+                <label for="name">Name:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  required
+                />
               </div>
-
-              <!-- Total Amount Box -->
-              <div class="mt-4">
-                <div class="text-center">
-                  <h4>Total Amount:</h4>
-                  <p><span id="total-amount">₹0</span></p>
-                </div>
+              <div class="form-group">
+                <label for="email">Email:</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  required
+                />
               </div>
-            </div>
-            <% if (locals.error) { %>
-            <p style="color: red"><%= error %></p>
-            <% } %>
+              <div class="form-group">
+                <label for="State">State:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="state"
+                  name="state"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="district">District:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="district"
+                  name="district"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="city">City:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="city"
+                  name="city"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="phone"
+                  name="phone"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="pincode">Pincode:</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="pincode"
+                  name="pincode"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="payment-method">Payment Method:</label>
+                <select
+                  class="form-control"
+                  id="payment-method"
+                  name="paymentMethod"
+                  required
+                >
+                  <option value="Cash On Delivery">Cash On Delivery</option>
+                  <option value="Online Payment">Online Payment</option>
+                  <!-- Add more options as needed -->
+                </select>
+              </div>
+            </form>
           </div>
 
-          <!-- Place Order Button -->
-          <div class="text-center mt-4">
-            <button
-              type="submit"
-              class="flex-c-m stext-101 cl0 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer mx-auto"
-              style="width: 15%; height: 50px"
+          <!-- Right Column - Cart Summary -->
+          <div class="col-md-6">
+            <div
+              class="table-container"
+              style="max-height: 600px; overflow-y: auto"
             >
-              Place order
-            </button>
+              <table class="table-shopping-cart">
+                <tr class="table_head">
+                  <th class="column-1">Product</th>
+                  <th class="column-2"></th>
+                  <th class="column-3">Price</th>
+                  <th class="column-4">Quantity</th>
+                  <th class="column-5">Total</th>
+                </tr>
+                <% carts.forEach(cart => { %>
+                <tr class="table_row">
+                  <td class="column-1">
+                    <div class="how-itemcart1">
+                      <img src="/uploads/<%= cart.productImg %>" alt="IMG" />
+                    </div>
+                  </td>
+                  <td class="column-2"><%= cart.name %></td>
+                  <td class="column-3">₹<%= cart.price %></td>
+                  <td class="column-4 text-center"><%= cart.quantity %></td>
+                  <td class="column-5">
+                    <span
+                      class="cart-item-total"
+                      data-total="<%= cart.price * cart.quantity %>"
+                    >
+                      ₹<%= cart.price * cart.quantity %>
+                    </span>
+                  </td>
+                </tr>
+                <% }) %>
+              </table>
+            </div>
+
+            <!-- Total Amount Box -->
+            <div class="mt-4">
+              <div class="text-center">
+                <h4>Total Amount:</h4>
+                <p><span id="total-amount">₹0</span></p>
+              </div>
+            </div>
           </div>
+          <% if (locals.error) { %>
+          <p style="color: red"><%= error %></p>
+          <% } %>
         </div>
-      </form>
+
+        <!-- Place Order Button -->
+        <div class="text-center mt-4">
+          <button
+            onclick="call()"
+            type="button"
+            id="placeOrder"
+            class="flex-c-m stext-101 cl0 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer mx-auto"
+            style="width: 15%; height: 50px"
+          >
+            Place order
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Footer -->
@@ -384,6 +384,117 @@
       </span>
     </div>
 
+    <!--===============================================================================================-->
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+      function call() {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const state = document.getElementById("state").value;
+        const district = document.getElementById("district").value;
+        const city = document.getElementById("city").value;
+        const phone = document.getElementById("phone").value;
+        const pincode = document.getElementById("pincode").value;
+        const paymentMethod = document.getElementById("payment-method").value;
+
+        const orderData = {
+          name,
+          email,
+          state,
+          district,
+          city,
+          phone,
+          pincode,
+          paymentMethod,
+        };
+
+        fetch("/user/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data);
+
+            if (paymentMethod === "Cash On Delivery" && data.cod) {
+              // Redirect to the UserOrders page
+              window.location.href = "/user/orders";
+            } else if (paymentMethod === "Online Payment" && data.online) {
+              // Handle online payment
+              razorpayPayment(data.order);
+            } else {
+              // Handle the case where data.success is false
+              console.error("Server reported failure");
+            }
+          });
+      }
+
+      function razorpayPayment(order) {
+        console.log("razorpayPayment function called");
+        console.log("Order ID:", order);
+
+        var options = {
+          key: "rzp_test_YEKs0OcNLC9cj0", // Enter the Key ID generated from the Dashboard
+          amount: 5000, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+          currency: "INR",
+          name: "HMK",
+          description: "Test Transaction",
+          image: "/image",
+          order_id: orderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+          handler: function (response) {
+            console.log("Razorpay payment handler called");
+            if (response.error) {
+              console.error("Razorpay payment failed:", response.error);
+            } else {
+              // Handle successful payment
+              console.log("Payment successful:", response);
+              confirmOrder(response);
+              $("#exampleModal1").modal("show");
+            }
+          },
+
+          prefill: {
+            name: "Gaurav Kumar",
+            email: "gaurav.kumar@example.com",
+            contact: "9000090000",
+          },
+          notes: {
+            address: "Razorpay Corporate Office",
+          },
+          theme: {
+            color: "#3399cc",
+          },
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+        rzp1.on("payment.failed", function (response) {
+          deleteOrder(response);
+          // alert(response.error.code);
+          // alert(response.error.description);
+          // alert(response.error.source);
+          // alert(response.error.step);
+          // alert(response.error.reason);
+          // alert(response.error.metadata.order_id);
+          // alert(response.error.metadata.payment_id);
+        });
+        // document.getElementById('rzp-button1').onclick = function(e){
+        //     rzp1.open();
+        //     e.preventDefault();
+        // }
+      }
+
+      function confirmOrder(response, orderId) {}
+    </script>
     <!--===============================================================================================-->
 
     <script>
