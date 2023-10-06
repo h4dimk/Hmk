@@ -42,7 +42,8 @@ router
 router
   .get("/orders", userController.userOrdersGet)
   .post("/orders", userController.userOrdersPost)
-  .post("/orders/cancel-order/:orderId", userController.CancelOrder);
+  .post("/orders/cancel-order/:orderId", userController.CancelOrder)
+  .post("/confirmOrder",userController.ConfirmOrder)
 
 
 module.exports = router;

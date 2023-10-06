@@ -431,7 +431,7 @@
               window.location.href = "/user/orders";
             } else if (paymentMethod === "Online Payment" && data.online) {
               // Handle online payment
-              razorpayPayment(data.order);
+              razorpayPayment(data.order, orderData);
             } else {
               // Handle the case where data.success is false
               console.error("Server reported failure");
@@ -439,34 +439,35 @@
           });
       }
 
-      function razorpayPayment(order) {
+      function razorpayPayment(order, orderData) {
         console.log("razorpayPayment function called");
         console.log("Order ID:", order);
 
         var options = {
           key: "rzp_test_YEKs0OcNLC9cj0", // Enter the Key ID generated from the Dashboard
-          amount: 5000, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+          amount: order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
           currency: "INR",
           name: "HMK",
           description: "Test Transaction",
-          image: "/image",
-          order_id: orderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+          image: "/image/Hmk(logo).jpg",
+          order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
           handler: function (response) {
+            console.log(response);
             console.log("Razorpay payment handler called");
             if (response.error) {
               console.error("Razorpay payment failed:", response.error);
             } else {
               // Handle successful payment
               console.log("Payment successful:", response);
-              confirmOrder(response);
+              confirmOrder(order, orderData);
               $("#exampleModal1").modal("show");
             }
           },
 
           prefill: {
-            name: "Gaurav Kumar",
-            email: "gaurav.kumar@example.com",
-            contact: "9000090000",
+            name: "Hadi mk",
+            email: "hadimk04@gmail.com",
+            contact: "7034444300",
           },
           notes: {
             address: "Razorpay Corporate Office",
@@ -493,7 +494,37 @@
         // }
       }
 
-      function confirmOrder(response, orderId) {}
+      async function confirmOrder(orderId, orderData) {
+        const dataToSend = {
+          orderId,
+          orderData,
+        };
+
+        try {
+          await fetch("/user/confirmOrder", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(dataToSend),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.success) {
+                window.location.href = "/user/orders";
+              } else {
+                console.error("Server reported failure");
+              }
+            });
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
     </script>
     <!--===============================================================================================-->
 

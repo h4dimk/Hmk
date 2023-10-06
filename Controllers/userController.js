@@ -523,10 +523,13 @@ const resetPasswordPost = async (req, res) => {
 const userCartGet = async (req, res) => {
   try {
     delete req.session.error;
-
-    const user = req.session.login;
-    const carts = await Cart.find({ userId: user });
-    res.render("UserCart", { carts });
+    if (req.session.login) {
+      const user = req.session.login;
+      const carts = await Cart.find({ userId: user });
+      res.render("UserCart", { carts });
+    } else {
+      res.redirect("/user/login");
+    }
   } catch (error) {
     console.error(error);
   }
@@ -689,9 +692,13 @@ const CheckoutGet = async (req, res) => {
 
 const userOrdersGet = async (req, res) => {
   try {
-    const userId = req.session.login;
-    const orders = await Order.find({ userId });
-    res.render("UserOrders", { orders });
+    if (req.session.login) {
+      const userId = req.session.login;
+      const orders = await Order.find({ userId });
+      res.render("UserOrders", { orders });
+    } else {
+      res.redirect("/user/login");
+    }
   } catch (error) {
     console.error(error);
   }
@@ -797,16 +804,17 @@ const userOrdersPost = async (req, res) => {
       }
       const orderId = generateRandomOrderId();
       let options = {
-        amount: totalAmount,
+        amount: totalAmount * 100,
         currency: "INR",
         receipt: orderId,
       };
 
-      instance.orders.create(options, (err, order) => {
+      instance.orders.create(options, async (err, order) => {
         if (!err) {
           console.log(order);
+          const user = await userModel.find({ email: req.session.login });
 
-          res.json({ order, online: true });
+          res.json({ order, user, online: true });
         } else {
           // Handle payment error
           console.log(err);
@@ -817,6 +825,54 @@ const userOrdersPost = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+const ConfirmOrder = async (req, res) => {
+  try {
+    const { orderId, orderData } = req.body;
+
+    const { amount, receipt } = orderId;
+
+    const {
+      name,
+      email,
+      state,
+      district,
+      city,
+      phone,
+      pincode,
+      paymentMethod,
+    } = orderData;
+
+    const user = req.session.login;
+    const carts = await Cart.find({ userId: user });
+
+    const order = new Order({
+      orderId: receipt,
+      userId: user,
+      products: carts,
+      name,
+      email,
+      state,
+      district,
+      city,
+      phone,
+      pincode,
+      paymentMethod,
+      status: "Pending",
+      totalAmount: amount / 100,
+      orderDate: new Date(),
+    });
+
+    await order.save();
+
+    // Delete the user's cart after placing the order
+    await Cart.deleteMany({ userId: user });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -871,5 +927,6 @@ module.exports = {
   CheckoutGet,
   userOrdersGet,
   userOrdersPost,
+  ConfirmOrder,
   CancelOrder,
 };
