@@ -2,24 +2,50 @@
 <%- include('adminlayout') %>
 
 <div id="content">
-  <div class="menu">
-    <a href="#">Sales Report (Daily)</a>
-    <a href="#">Sales Report (Weekly)</a>
-    <a href="#">Sales Report (Yearly)</a>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container-fluid">
+    <h2>Admin Dashboard</h2>
   </div>
+</nav>
+<div class="mt-4">
 
-  <div class="sales-report">
-    <div class="report-heading">Sales Report (Daily)</div>
-    <div class="report-options">
-      <label for="date">Select Date:</label>
-      <input type="date" id="date">
-      <button class="generate-button">Generate Report</button>
-    </div>
-    <div class="report-results">
-      <!-- Display your sales data here -->
-      <div class="chart">Sample Chart (Daily)</div>
-    </div>
-  </div>
+  <canvas id="salesChart" ></canvas>
 </div>
+</div>
+
+<script>
+  // Get a reference to the canvas element
+  const ctx = document.getElementById("salesChart").getContext("2d");
+
+// Sample data (replace with your sales data)
+const salesData = {
+    labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    datasets: [
+        {
+            label: "Sales",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 1,
+            data: [65, 59, 80, 81, 56, 55, 40, 75, 92, 68, 45, 60], 
+        },
+    ],
+};
+
+// Create the chart
+const salesChart = new Chart(ctx, {
+    type: "bar", // Bar chart
+    data: salesData,
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+            },
+        },
+    },
+});
+
+</script>
+
 
 <%- include('footer') %>
