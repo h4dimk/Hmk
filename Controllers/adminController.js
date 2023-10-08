@@ -63,7 +63,102 @@ const adminLoginPost = async (req, res) => {
 const adminDashboardGet = async (req, res) => {
   try {
     if (req.session.admin) {
-      res.render("adminDashboard");
+      // Order Per Month
+      const targetYear = 2023;
+
+      const pipeline1 = [
+        {
+          $match: {
+            orderDate: {
+              $gte: new Date(`${targetYear}-01-01`),
+              $lt: new Date(`${targetYear + 1}-01-01`),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: "%Y-%m",
+                date: "$orderDate",
+              },
+            },
+            totalOrders: { $sum: 1 },
+          },
+        },
+        {
+          $sort: {
+            _id: 1,
+          },
+        },
+      ];
+
+      const monthlyOrderData = await Order.aggregate(pipeline1);
+
+      function fillMissingMonths(monthlyOrderData) {
+        const resultArray = [];
+        const monthsMap = new Map();
+
+        for (const monthData of monthlyOrderData) {
+          monthsMap.set(monthData._id, monthData.totalOrders);
+        }
+
+        for (let month = 1; month <= 12; month++) {
+          const monthKey = `2023-${month.toString().padStart(2, "0")}`;
+          const orders = monthsMap.get(monthKey) || 0;
+          resultArray.push(orders);
+        }
+
+        return resultArray;
+      }
+      const monthlyOrdersArray = fillMissingMonths(monthlyOrderData);
+
+      // Monthly Total Revenue
+      const currentYear = 2023;
+
+      const pipeline2 = [
+        {
+          $match: {
+            status: {
+              $nin: ["Cancelled"],
+            },
+            createdAt: {
+              $gte: new Date(currentYear, 0, 1), // Start of the current year
+              $lt: new Date(currentYear + 1, 0, 1), // Start of the next year
+            },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              month: { $month: "$createdAt" },
+            },
+            totalRevenue: { $sum: "$total" },
+          },
+        },
+        {
+          $sort: {
+            "_id.month": 1,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            month: "$_id.month",
+            totalRevenue: 1,
+          },
+        },
+      ];
+
+      const revenuePerMonth = await Order.aggregate(pipeline2);
+
+      const monthlyRevenueArray = fillMissingMonths(revenuePerMonth);
+
+      const data = {
+        monthlyOrdersArray,
+        monthlyRevenueArray,
+      };
+      res.render("adminDashboard", { data });
     } else {
       res.redirect("/admin/login");
     }

@@ -1,51 +1,122 @@
-<%- include('header') %>
-<%- include('adminlayout') %>
+<%- include('header') %> <%- include('adminlayout') %>
 
 <div id="content">
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-light">
-  <div class="container-fluid">
-    <h2>Admin Dashboard</h2>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <h2>Admin Dashboard</h2>
+    </div>
+  </nav>
+  <div class="chart-container">
+    <div class="chart-wrapper">
+      <h4 class="text-center mb-3">Sales Per Month</h4>
+      <input
+        type="hidden"
+        id="ordersPerMonth"
+        value="<%= JSON.stringify(data.monthlyOrdersArray) %>"
+      />
+      <canvas id="salesChart"></canvas>
+    </div>
+    <div class="chart-wrapper">
+      <h4 class="text-center mb-3">Monthly Total Revenue</h4>
+      <input
+        type="hidden"
+        id="revenuePerMonth"
+        value="<%= JSON.stringify(data.monthlyRevenueArray) %>"
+      />
+      <canvas id="lineChart"></canvas>
+    </div>
   </div>
-</nav>
-<div class="mt-4">
-
-  <canvas id="salesChart" ></canvas>
-</div>
 </div>
 
 <script>
-  // Get a reference to the canvas element
-  const ctx = document.getElementById("salesChart").getContext("2d");
+  // Order Per Month (sales chart)
+  const ctxSales = document.getElementById("salesChart").getContext("2d");
+  const ordersPerMonth = document.getElementById("ordersPerMonth").value;
+  const monthlyOrdersArray = JSON.parse(ordersPerMonth);
+  console.log(monthlyOrdersArray);
 
-// Sample data (replace with your sales data)
-const salesData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    datasets: [
-        {
-            label: "Sales",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 1,
-            data: [65, 59, 80, 81, 56, 55, 40, 75, 92, 68, 45, 60], 
-        },
+  const salesData = {
+    labels: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
     ],
-};
+    datasets: [
+      {
+        label: "Sales",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+        data: monthlyOrdersArray,
+      },
+    ],
+  };
 
-// Create the chart
-const salesChart = new Chart(ctx, {
-    type: "bar", // Bar chart
+  const salesChart = new Chart(ctxSales, {
+    type: "bar",
     data: salesData,
     options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-            },
+      scales: {
+        y: {
+          beginAtZero: true,
         },
+      },
     },
-});
+  });
 
+  // Monthly Total Revenue (lineChart)
+  const ctxLine = document.getElementById("lineChart").getContext("2d");
+  const revenuePerMonth = document.getElementById("revenuePerMonth").value;
+  const monthlyRevenueArray = JSON.parse(revenuePerMonth);
+  console.log(monthlyRevenueArray);
+
+  const lineData = {
+    labels: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    datasets: [
+      {
+        label: "Revenue",
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 2,
+        fill: false,
+        data: monthlyRevenueArray,
+      },
+    ],
+  };
+
+  const lineChart = new Chart(ctxLine, {
+    type: "line",
+    data: lineData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
 </script>
-
 
 <%- include('footer') %>
