@@ -100,7 +100,7 @@
                     <strong>Order Status:</strong>
                     <select class="form-control" name="orderStatus">
                       <% const orderStatusOptions = ["Pending", "Shipped",
-                      "Delivered", "Cancelled"]; %> <%
+                      "Delivered", "Cancelled","Requesting order cancellation"]; %> <%
                       orderStatusOptions.forEach(status => { %> <option
                       value="<%= status %>" <%= order.status === status ?
                       'selected' : '' %>> <%= status %> <% }); %>

@@ -889,8 +889,8 @@ const CancelOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Update the order status to "Cancelled"
-    order.status = "Cancelled";
+    // Update the order status to "Requested to cancel the order"
+    order.status = "Requesting order cancellation";
 
     // Save the updated order in the database
     await order.save();

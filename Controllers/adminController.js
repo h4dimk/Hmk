@@ -64,17 +64,22 @@ const adminDashboardGet = async (req, res) => {
   try {
     if (req.session.admin) {
       // Order Per Month
-      const targetYear = 2023;
+      const currentYear = new Date().getFullYear();
 
-      const pipeline1 = [
-        {
-          $match: {
-            orderDate: {
-              $gte: new Date(`${targetYear}-01-01`),
-              $lt: new Date(`${targetYear + 1}-01-01`),
-            },
+      const matchStage = {
+        $match: {
+          status: {
+            $nin: ["Cancelled"],
+          },
+          orderDate: {
+            $gte: new Date(`${currentYear}-01-01`),
+            $lt: new Date(`${currentYear + 1}-01-01`),
           },
         },
+      };
+
+      const pipeline1 = [
+        matchStage,
         {
           $group: {
             _id: {
@@ -95,7 +100,7 @@ const adminDashboardGet = async (req, res) => {
 
       const monthlyOrderData = await Order.aggregate(pipeline1);
 
-      function fillMissingMonths(monthlyOrderData) {
+      function fillMissingMonthsOrder(monthlyOrderData) {
         const resultArray = [];
         const monthsMap = new Map();
 
@@ -111,48 +116,49 @@ const adminDashboardGet = async (req, res) => {
 
         return resultArray;
       }
-      const monthlyOrdersArray = fillMissingMonths(monthlyOrderData);
+      const monthlyOrdersArray = fillMissingMonthsOrder(monthlyOrderData);
 
       // Monthly Total Revenue
-      const currentYear = 2023;
-
       const pipeline2 = [
-        {
-          $match: {
-            status: {
-              $nin: ["Cancelled"],
-            },
-            createdAt: {
-              $gte: new Date(currentYear, 0, 1), // Start of the current year
-              $lt: new Date(currentYear + 1, 0, 1), // Start of the next year
-            },
-          },
-        },
+        matchStage,
         {
           $group: {
             _id: {
-              month: { $month: "$createdAt" },
+              $dateToString: {
+                format: "%Y-%m",
+                date: "$orderDate",
+              },
             },
-            totalRevenue: { $sum: "$total" },
+            totalRevenue: { $sum: "$totalAmount" }, // Calculate total revenue for each month
           },
         },
         {
           $sort: {
-            "_id.month": 1,
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            month: "$_id.month",
-            totalRevenue: 1,
+            _id: 1, // Sort by month in ascending order
           },
         },
       ];
 
       const revenuePerMonth = await Order.aggregate(pipeline2);
 
-      const monthlyRevenueArray = fillMissingMonths(revenuePerMonth);
+      function fillMissingMonthsRevenue(monthlyRevenueData) {
+        const resultArray = [];
+        const monthsMap = new Map();
+
+        for (const monthData of monthlyRevenueData) {
+          monthsMap.set(monthData._id, monthData.totalRevenue);
+        }
+
+        for (let month = 1; month <= 12; month++) {
+          const monthKey = `2023-${month.toString().padStart(2, "0")}`;
+          const revenue = monthsMap.get(monthKey) || 0;
+          resultArray.push(revenue);
+        }
+
+        return resultArray;
+      }
+
+      const monthlyRevenueArray = fillMissingMonthsRevenue(revenuePerMonth);
 
       const data = {
         monthlyOrdersArray,
