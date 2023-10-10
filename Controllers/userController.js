@@ -55,12 +55,11 @@ function generateRandomOtp() {
 function generateRandomOrderId() {
   // Get the current timestamp in milliseconds
   const timestamp = new Date().getTime();
+  let modifiedTimestamp = timestamp.toString().slice(0, 5);
 
-  // Generate a random number (you can customize the length as needed)
-  const randomPart = Math.floor(Math.random() * 1000000);
+  const randomPart = Math.floor(100 + Math.random() * 900);
 
-  // Combine timestamp and random number to create the orderId
-  const orderId = `${timestamp}${randomPart}`;
+  const orderId = `${modifiedTimestamp}${randomPart}`;
 
   return orderId.toString();
 }
@@ -68,10 +67,11 @@ function generateRandomOrderId() {
 const homeGet = async (req, res) => {
   try {
     const banners = await Banner.find();
+    const products = await Product.find().limit(8);
     const login = req.session.login;
 
     console.log("Now the user is " + login);
-    res.render("LandingPage", { login, banners });
+    res.render("LandingPage", { login, banners,products });
   } catch (error) {
     console.error(error);
   }
