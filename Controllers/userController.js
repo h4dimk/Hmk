@@ -71,7 +71,7 @@ const homeGet = async (req, res) => {
     const login = req.session.login;
 
     console.log("Now the user is " + login);
-    res.render("LandingPage", { login, banners,products });
+    res.render("LandingPage", { login, banners, products });
   } catch (error) {
     console.error(error);
   }
@@ -271,66 +271,17 @@ const otpEntryPost = async (req, res) => {
 };
 
 const UserShopGet = async (req, res) => {
-  delete req.session.error;
-
-  const page = parseInt(req.query.page) || 1;
-  const limit = 8;
-  const skip = (page - 1) * limit;
-
-  const minPrice = parseFloat(req.query.minPrice) || 0;
-  const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
-
   try {
-    const filteredProducts = await Product.find({
-      price: { $gte: minPrice, $lte: maxPrice },
-    }).exec();
-
-    const totalFilteredProducts = filteredProducts.length;
-
-    const totalPages = Math.ceil(totalFilteredProducts / limit);
-
-    const products = filteredProducts.slice(skip, skip + limit);
-
+    const {
+      products,
+      currentPage,
+      totalPages,
+      selectedMinPrice,
+      selectedMaxPrice,
+    } = await getFilteredProducts(req.query);
     res.render("UserShop", {
       products,
-      currentPage: page,
-      totalPages,
-      selectedMinPrice: minPrice,
-      selectedMaxPrice: maxPrice,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const ShopSearch = async (req, res) => {
-  const searchText = req.body.search;
-  const page = parseInt(req.query.page) || 1;
-  const selectedMinPrice = parseFloat(req.query.minPrice) || 0;
-  const selectedMaxPrice = parseFloat(req.query.maxPrice) || Number.MAX_VALUE;
-
-  try {
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: searchText, $options: "i" } },
-        { category: { $regex: searchText, $options: "i" } },
-      ],
-      price: { $gte: selectedMinPrice, $lte: selectedMaxPrice },
-    });
-
-    const totalProducts = products.length;
-
-    const limit = 8;
-
-    const skip = (page - 1) * limit;
-
-    const slicedProducts = products.slice(skip, skip + limit);
-
-    const totalPages = Math.ceil(totalProducts / limit);
-
-    res.render("UserShop", {
-      products: slicedProducts,
-      currentPage: page,
+      currentPage,
       totalPages,
       selectedMinPrice,
       selectedMaxPrice,
@@ -338,6 +289,90 @@ const ShopSearch = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const getFilteredProducts = async (query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = 8;
+  const skip = (page - 1) * limit;
+
+  const minPrice = parseFloat(query.minPrice) || 0;
+  const maxPrice = parseFloat(query.maxPrice) || Number.MAX_VALUE;
+
+  const filteredProducts = await Product.find({
+    price: { $gte: minPrice, $lte: maxPrice },
+  }).exec();
+
+  const totalFilteredProducts = filteredProducts.length;
+  const totalPages = Math.ceil(totalFilteredProducts / limit);
+  const products = filteredProducts.slice(skip, skip + limit);
+
+  return {
+    products,
+    currentPage: page,
+    totalPages,
+    selectedMinPrice: minPrice,
+    selectedMaxPrice: maxPrice,
+  };
+};
+
+const ShopSearch = async (req, res) => {
+  try {
+    const {
+      products,
+      currentPage,
+      totalPages,
+      selectedMinPrice,
+      selectedMaxPrice,
+    } = await searchProducts(req.body.search, req.query);
+
+    res.render("UserShop", {
+      products,
+      currentPage,
+      totalPages,
+      selectedMinPrice,
+      selectedMaxPrice,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const searchProducts = async (searchText, query) => {
+  const page = parseInt(query.page) || 1;
+  const selectedMinPrice = parseFloat(query.minPrice) || 0;
+  const selectedMaxPrice = parseFloat(query.maxPrice) || Number.MAX_VALUE;
+
+  // Construct the search query using regular expressions
+  const searchQuery = {
+    $or: [
+      { name: { $regex: searchText, $options: "i" } },
+      { category: { $regex: searchText, $options: "i" } },
+    ],
+    price: { $gte: selectedMinPrice, $lte: selectedMaxPrice },
+  };
+
+  // Count the total number of matching products
+  const totalProducts = await Product.countDocuments(searchQuery);
+
+  const limit = 8;
+  const skip = (page - 1) * limit;
+
+  // Retrieve the products for the current page
+  const products = await Product.find(searchQuery)
+    .skip(skip)
+    .limit(limit)
+    .exec();
+
+  const totalPages = Math.ceil(totalProducts / limit);
+
+  return {
+    products,
+    currentPage: page,
+    totalPages,
+    selectedMinPrice,
+    selectedMaxPrice,
+  };
 };
 
 const ProductDetailsGet = async (req, res) => {

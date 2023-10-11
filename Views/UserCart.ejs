@@ -347,10 +347,15 @@
     <!-- Shoping Cart -->
     <form class="bg0 p-t-75 p-b-85">
       <% if(carts.length === 0){%>
-        <div class="text-center"> 
-        <img id="empty-cart-image" src="/images/Cart empty.png" alt="Empty Cart" style=" max-width: 100%;" />
+      <div class="text-center">
+        <img
+          id="empty-cart-image"
+          src="/images/Cart empty.png"
+          alt="Empty Cart"
+          style="max-width: 100%"
+        />
       </div>
-        <%}else{%>
+      <%}else{%>
       <div class="container">
         <div class="row">
           <div class="col-lg-9 col-xl-9 m-lr-auto m-b-50">
@@ -430,6 +435,30 @@
                   >
                     Total: ₹<span id="cart-total-amount">0</span>
                   </span>
+                </div>
+                <div class="flex-w flex-m m-r-20 m-tb-5">
+                  <div class="form-group">
+                    <div class="input-group">
+                      <input
+                        type="text"
+                        id="couponCode"
+                        class="form-control"
+                        placeholder="Enter coupon code"
+                        aria-label="Coupon code"
+                        aria-describedby="apply-coupon-button"
+                      />
+                      <div class="input-group-append">
+                        <button
+                          type="button"
+                          class="btn cl0 bg3 hov-btn3 p-lr-15 trans-04"
+                          id="apply-coupon-button"
+                          onclick="applyCoupon()"
+                        >
+                          Apply Coupon
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

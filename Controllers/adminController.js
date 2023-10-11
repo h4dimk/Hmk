@@ -654,6 +654,14 @@ const adminOrdersDetailsPost = async (req, res) => {
   }
 };
 
+const adminCouponGet= (req,res)=>{
+  try {
+   res.render("adminCoupon")
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   adminHomeGet,
   adminLoginGet,
@@ -683,4 +691,5 @@ module.exports = {
   adminOrdersGet,
   adminOrdersDetailsGet,
   adminOrdersDetailsPost,
+  adminCouponGet,
 };

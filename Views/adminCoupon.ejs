@@ -1,0 +1,111 @@
+<%- include('header') %> <%- include('adminlayout') %>
+
+<div id="content" class="container">
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <h2>Coupon Management</h2>
+    </div>
+  </nav>
+  <div class="row mt-4">
+    <!-- Add Coupon Form -->
+    <div class="col-md-6">
+      <div class="coupon-form">
+        <h3>Add a New Coupon</h3>
+        <form action="/coupons/add" method="POST">
+          <div class="form-group mt-4">
+            <label for="code">Coupon Code</label>
+            <input type="text" name="code" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="discountPercentage">Discount Percentage</label>
+            <input
+              type="number"
+              name="discountPercentage"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="minPurchaseAmount">Minimum Purchase Amount</label>
+            <input
+              type="number"
+              name="minPurchaseAmount"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="createdAt">Creation Date</label>
+            <input type="date" name="createdAt" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="expiresAt">Expiration Date</label>
+            <input type="date" name="expiresAt" class="form-control" required />
+          </div>
+          <div class="form-check">
+            <input
+              type="checkbox"
+              name="active"
+              id="active"
+              value="true"
+              class="form-check-input"
+            />
+            <label for="active" class="form-check-label">Active</label>
+          </div>
+          <div class="form-group">
+            <label for="maxRedimableAmount">Maximum Redeemable Amount</label>
+            <input
+              type="number"
+              name="maxRedimableAmount"
+              class="form-control"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Add Coupon</button>
+        </form>
+      </div>
+    </div>
+    <!-- List of Coupons -->
+    <div class="col-md-6">
+      <div class="coupons">
+        <h3>Coupons</h3>
+        <ul class="list-group mt-4">
+          <% const dummyCoupons = [ { code: "DUMMYCODE1", discountPercentage:
+          10, minPurchaseAmount: 50, createdAt: "2023-09-15", expiresAt:
+          "2023-09-30", active: true, maxRedimableAmount: 100 }, { code:
+          "DUMMYCODE2", discountPercentage: 20, minPurchaseAmount: 75,
+          createdAt: "2023-09-10", expiresAt: "2023-09-25", active: false,
+          maxRedimableAmount: 150 } ]; %> <% for (const coupon of dummyCoupons)
+          { %>
+          <li class="list-group-item coupon-item">
+            <div class="coupon-details">
+              <strong class="coupon-label">Coupon Code:</strong> <%= coupon.code
+              %><br />
+              <strong class="coupon-label">Discount Percentage:</strong> <%=
+              coupon.discountPercentage %><br />
+              <strong class="coupon-label">Minimum Purchase Amount:</strong> <%=
+              coupon.minPurchaseAmount %><br />
+              <strong class="coupon-label">Creation Date:</strong> <%=
+              coupon.createdAt %><br />
+              <strong class="coupon-label">Expiration Date:</strong> <%=
+              coupon.expiresAt %><br />
+              <strong class="coupon-label">Active:</strong> <%= coupon.active ?
+              'Yes' : 'No' %><br />
+              <strong class="coupon-label">Maximum Redeemable Amount:</strong>
+              <%= coupon.maxRedimableAmount %><br />
+            </div>
+            <div class="coupon-actions">
+              <button class="btn btn-primary">Edit</button>
+              <button class="btn btn-danger">Delete</button>
+              <button class="btn btn-success">List</button>
+            </div>
+          </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

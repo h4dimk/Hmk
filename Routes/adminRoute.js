@@ -70,4 +70,7 @@ router
   .get("/orders/details/:id", adminController.adminOrdersDetailsGet)
   .post("/orders/details/:id", adminController.adminOrdersDetailsPost);
 
+  router
+  .get("/coupon",adminController.adminCouponGet)
+
 module.exports = router;
