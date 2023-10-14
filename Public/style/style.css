@@ -304,6 +304,12 @@ canvas {
   justify-content: space-between;
 }
 
+.button-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 
 .coupon-label {
   font-weight: bold;

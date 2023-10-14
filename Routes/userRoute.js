@@ -1,7 +1,7 @@
 const expres = require("express");
 const router = expres.Router();
 const userController = require("../Controllers/userController");
-const checkUserStatus = require("../Middlewares/authMiddleware");
+const checkUserStatus = require("../Middlewares/userAuth");
 
 router.get("/", checkUserStatus, userController.homeGet);
 
@@ -32,7 +32,7 @@ router
   .get("/shop/product/:id", userController.ProductDetailsGet);
 
 router
-  .get("/cart", userController.userCartGet)
+  .get("/cart",checkUserStatus, userController.userCartGet)
   .post("/cart/:id", userController.userCartPost)
   .put("/cart/decrease/:id", userController.CartProductdc)
   .put("/cart/increase/:id", userController.CartProductin)

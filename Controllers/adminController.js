@@ -7,11 +7,7 @@ const Order = require("../Models/order");
 
 const adminHomeGet = (req, res) => {
   try {
-    if (req.session.admin) {
-      res.redirect("/admin/dashboard");
-    } else {
-      res.redirect("/admin/login");
-    }
+    res.redirect("/admin/dashboard");
   } catch (error) {
     console.error(error);
   }
@@ -19,12 +15,7 @@ const adminHomeGet = (req, res) => {
 
 const adminLoginGet = (req, res) => {
   try {
-    if (req.session.admin) {
-      res.redirect("/admin/dashboard");
-    } else {
-      let error = req.session.error;
-      res.render("adminLogin", { error });
-    }
+    res.redirect("/admin/dashboard");
   } catch (error) {
     console.error(error);
   }
@@ -62,112 +53,108 @@ const adminLoginPost = async (req, res) => {
 
 const adminDashboardGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      // Order Per Month
-      const currentYear = new Date().getFullYear();
+    // Order Per Month
+    const currentYear = new Date().getFullYear();
 
-      const matchStage = {
-        $match: {
-          status: {
-            $nin: ["Cancelled"],
-          },
-          orderDate: {
-            $gte: new Date(`${currentYear}-01-01`),
-            $lt: new Date(`${currentYear + 1}-01-01`),
-          },
+    const matchStage = {
+      $match: {
+        status: {
+          $nin: ["Cancelled"],
         },
-      };
+        orderDate: {
+          $gte: new Date(`${currentYear}-01-01`),
+          $lt: new Date(`${currentYear + 1}-01-01`),
+        },
+      },
+    };
 
-      const pipeline1 = [
-        matchStage,
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y-%m",
-                date: "$orderDate",
-              },
+    const pipeline1 = [
+      matchStage,
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$orderDate",
             },
-            totalOrders: { $sum: 1 },
           },
+          totalOrders: { $sum: 1 },
         },
-        {
-          $sort: {
-            _id: 1,
-          },
+      },
+      {
+        $sort: {
+          _id: 1,
         },
-      ];
+      },
+    ];
 
-      const monthlyOrderData = await Order.aggregate(pipeline1);
+    const monthlyOrderData = await Order.aggregate(pipeline1);
 
-      function fillMissingMonthsOrder(monthlyOrderData) {
-        const resultArray = [];
-        const monthsMap = new Map();
+    function fillMissingMonthsOrder(monthlyOrderData) {
+      const resultArray = [];
+      const monthsMap = new Map();
 
-        for (const monthData of monthlyOrderData) {
-          monthsMap.set(monthData._id, monthData.totalOrders);
-        }
-
-        for (let month = 1; month <= 12; month++) {
-          const monthKey = `2023-${month.toString().padStart(2, "0")}`;
-          const orders = monthsMap.get(monthKey) || 0;
-          resultArray.push(orders);
-        }
-
-        return resultArray;
-      }
-      const monthlyOrdersArray = fillMissingMonthsOrder(monthlyOrderData);
-
-      // Monthly Total Revenue
-      const pipeline2 = [
-        matchStage,
-        {
-          $group: {
-            _id: {
-              $dateToString: {
-                format: "%Y-%m",
-                date: "$orderDate",
-              },
-            },
-            totalRevenue: { $sum: "$totalAmount" }, // Calculate total revenue for each month
-          },
-        },
-        {
-          $sort: {
-            _id: 1, // Sort by month in ascending order
-          },
-        },
-      ];
-
-      const revenuePerMonth = await Order.aggregate(pipeline2);
-
-      function fillMissingMonthsRevenue(monthlyRevenueData) {
-        const resultArray = [];
-        const monthsMap = new Map();
-
-        for (const monthData of monthlyRevenueData) {
-          monthsMap.set(monthData._id, monthData.totalRevenue);
-        }
-
-        for (let month = 1; month <= 12; month++) {
-          const monthKey = `2023-${month.toString().padStart(2, "0")}`;
-          const revenue = monthsMap.get(monthKey) || 0;
-          resultArray.push(revenue);
-        }
-
-        return resultArray;
+      for (const monthData of monthlyOrderData) {
+        monthsMap.set(monthData._id, monthData.totalOrders);
       }
 
-      const monthlyRevenueArray = fillMissingMonthsRevenue(revenuePerMonth);
+      for (let month = 1; month <= 12; month++) {
+        const monthKey = `2023-${month.toString().padStart(2, "0")}`;
+        const orders = monthsMap.get(monthKey) || 0;
+        resultArray.push(orders);
+      }
 
-      const data = {
-        monthlyOrdersArray,
-        monthlyRevenueArray,
-      };
-      res.render("adminDashboard", { data });
-    } else {
-      res.redirect("/admin/login");
+      return resultArray;
     }
+    const monthlyOrdersArray = fillMissingMonthsOrder(monthlyOrderData);
+
+    // Monthly Total Revenue
+    const pipeline2 = [
+      matchStage,
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$orderDate",
+            },
+          },
+          totalRevenue: { $sum: "$totalAmount" }, // Calculate total revenue for each month
+        },
+      },
+      {
+        $sort: {
+          _id: 1, // Sort by month in ascending order
+        },
+      },
+    ];
+
+    const revenuePerMonth = await Order.aggregate(pipeline2);
+
+    function fillMissingMonthsRevenue(monthlyRevenueData) {
+      const resultArray = [];
+      const monthsMap = new Map();
+
+      for (const monthData of monthlyRevenueData) {
+        monthsMap.set(monthData._id, monthData.totalRevenue);
+      }
+
+      for (let month = 1; month <= 12; month++) {
+        const monthKey = `2023-${month.toString().padStart(2, "0")}`;
+        const revenue = monthsMap.get(monthKey) || 0;
+        resultArray.push(revenue);
+      }
+
+      return resultArray;
+    }
+
+    const monthlyRevenueArray = fillMissingMonthsRevenue(revenuePerMonth);
+
+    const data = {
+      monthlyOrdersArray,
+      monthlyRevenueArray,
+    };
+    res.render("adminDashboard", { data });
   } catch (error) {
     console.log(error);
   }
@@ -175,12 +162,8 @@ const adminDashboardGet = async (req, res) => {
 
 const adminUsermanagementGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const users = await userModel.find();
-      res.render("adminUsermanagement", { users: users });
-    } else {
-      res.redirect("/admin/login");
-    }
+    const users = await userModel.find();
+    res.render("adminUsermanagement", { users: users });
   } catch (error) {
     console.log(error);
   }
@@ -203,13 +186,9 @@ const UserSearch = async (req, res) => {
 
 const adminCategoryGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      let error = req.session.error;
-      const categories = await Category.find();
-      res.render("adminCategory", { categories, error });
-    } else {
-      res.redirect("/admin/login");
-    }
+    let error = req.session.error;
+    const categories = await Category.find();
+    res.render("adminCategory", { categories, error });
   } catch (error) {
     console.log(error);
   }
@@ -302,13 +281,9 @@ const ListUnlistCategory = async (req, res) => {
 
 const deleteCategory = (req, res) => {
   try {
-    if (req.session.admin) {
-      Category.findByIdAndDelete(req.params.id).then((res) => {
-        console.log(res + " deleted");
-      });
-    } else {
-      res.redirect("/admin/login");
-    }
+    Category.findByIdAndDelete(req.params.id).then((res) => {
+      console.log(res + " deleted");
+    });
   } catch (error) {
     console.error(error);
   }
@@ -329,12 +304,8 @@ const CategorySearch = async (req, res) => {
 
 const adminlogout = (req, res) => {
   try {
-    if (req.session.admin) {
-      req.session.destroy();
-      res.redirect("/admin/login");
-    } else {
-      res.redirect("/admin/login");
-    }
+    req.session.destroy();
+    res.redirect("/admin/login");
   } catch (error) {
     console.error(error);
   }
@@ -369,12 +340,8 @@ const toggleUserStatus = async (req, res) => {
 
 const adminProductsGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const products = await Product.find();
-      res.render("adminProducts", { products });
-    } else {
-      res.redirect("/admin/login");
-    }
+    const products = await Product.find();
+    res.render("adminProducts", { products });
   } catch (error) {
     console.log(error);
   }
@@ -382,14 +349,10 @@ const adminProductsGet = async (req, res) => {
 
 const addProductGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const products = await Product.find();
-      const categories = await Category.find();
-      const error = req.session.error;
-      res.render("addProduct", { products, categories, error });
-    } else {
-      res.redirect("/admin/login");
-    }
+    const products = await Product.find();
+    const categories = await Category.find();
+    const error = req.session.error;
+    res.render("addProduct", { products, categories, error });
   } catch (error) {
     console.log(error);
   }
@@ -507,14 +470,10 @@ const ProductSearch = async (req, res) => {
 
 const deleteProduct = (req, res) => {
   try {
-    if (req.session.admin) {
-      Product.findByIdAndDelete(req.params.id).then((resp) => {
-        console.log(resp + "deleted");
-        res.send(200);
-      });
-    } else {
-      res.redirect("/admin/login");
-    }
+    Product.findByIdAndDelete(req.params.id).then((resp) => {
+      console.log(resp + "deleted");
+      res.send(200);
+    });
   } catch (error) {
     console.error(error);
   }
@@ -551,12 +510,8 @@ const ListUnlistProduct = async (req, res) => {
 
 const adminBannersGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const banners = await Banner.find();
-      res.render("adminBannerMng", { banners: banners });
-    } else {
-      res.redirect("/admin/login");
-    }
+    const banners = await Banner.find();
+    res.render("adminBannerMng", { banners: banners });
   } catch (error) {
     console.log(error);
   }
@@ -590,14 +545,10 @@ const adminBannersPost = async (req, res) => {
 
 const deleteBanner = (req, res) => {
   try {
-    if (req.session.admin) {
-      Banner.findByIdAndDelete(req.params.id).then((resp) => {
-        console.log(resp + " deleted");
-        res.send(200);
-      });
-    } else {
-      res.redirect("/admin/login");
-    }
+    Banner.findByIdAndDelete(req.params.id).then((resp) => {
+      console.log(resp + " deleted");
+      res.send(200);
+    });
   } catch (error) {
     console.error(error);
   }
@@ -605,13 +556,9 @@ const deleteBanner = (req, res) => {
 
 const adminOrdersGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const orders = await Order.find();
+    const orders = await Order.find();
 
-      res.render("adminOrders", { orders });
-    } else {
-      res.redirect("/admin/login");
-    }
+    res.render("adminOrders", { orders });
   } catch (error) {
     console.error(error);
   }
@@ -619,14 +566,10 @@ const adminOrdersGet = async (req, res) => {
 
 const adminOrdersDetailsGet = async (req, res) => {
   try {
-    if (req.session.admin) {
-      const orderId = req.params.id;
-      const orders = await Order.find({ _id: orderId });
+    const orderId = req.params.id;
+    const orders = await Order.find({ _id: orderId });
 
-      res.render("adminOrderDetails", { orders });
-    } else {
-      res.redirect("/admin/login");
-    }
+    res.render("adminOrderDetails", { orders });
   } catch (error) {
     console.error(error);
   }
@@ -654,13 +597,13 @@ const adminOrdersDetailsPost = async (req, res) => {
   }
 };
 
-const adminCouponGet= (req,res)=>{
+const adminCouponGet = (req, res) => {
   try {
-   res.render("adminCoupon")
+    res.render("adminCoupon");
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 module.exports = {
   adminHomeGet,

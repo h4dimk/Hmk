@@ -81,7 +81,7 @@
                   <% } %>
                 </td>
                 <td class="actions-column">
-                  <div class="button-container">
+                  <div class="button-container mt-3">
                     <a
                       href="/admin/products/edit/<%= product._id %>"
                       class="btn btn-primary"
@@ -92,7 +92,6 @@
                     <form
                       action="/admin/products/delete/<%= product._id %>"
                       onsubmit="deleteProduct('<%= product._id %>'); return false;"
-                      style="display: inline"
                     >
                       <button class="btn btn-danger">Delete</button>
                     </form>
