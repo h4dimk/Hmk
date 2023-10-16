@@ -8,6 +8,7 @@ const Cart = require("../Models/cart");
 const Order = require("../Models/order");
 const Category = require("../Models/category");
 const RazorPay = require("razorpay");
+const Admin = require("../Models/admin");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -71,6 +72,7 @@ const homeGet = async (req, res) => {
     const login = req.session.login;
 
     console.log("Now the user is " + login);
+
     res.render("LandingPage", { login, banners, products });
   } catch (error) {
     console.error(error);
@@ -177,9 +179,10 @@ const userSignUpPost = async (req, res) => {
   }
 };
 
-const userLoginPageGet = (req, res) => {
+const userLoginPageGet = async (req, res) => {
   try {
     const error = req.session.error;
+
     res.render("UserLogin", { error });
   } catch (error) {
     console.error(error);
