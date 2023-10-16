@@ -275,6 +275,8 @@ const otpEntryPost = async (req, res) => {
 
 const UserShopGet = async (req, res) => {
   try {
+    const categories = await Category.find({ islisted: true });
+
     const {
       products,
       currentPage,
@@ -284,6 +286,7 @@ const UserShopGet = async (req, res) => {
     } = await getFilteredProducts(req.query);
     res.render("UserShop", {
       products,
+      categories,
       currentPage,
       totalPages,
       selectedMinPrice,
@@ -302,9 +305,26 @@ const getFilteredProducts = async (query) => {
   const minPrice = parseFloat(query.minPrice) || 0;
   const maxPrice = parseFloat(query.maxPrice) || Number.MAX_VALUE;
 
-  const filteredProducts = await Product.find({
+  // Fetch only categories marked as "listed"
+  const categories = await Category.find({ islisted: true });
+
+  const categoryFilter = query.category; // Get the category filter from the query parameters
+
+  // Construct the search query
+  const searchQuery = {
     price: { $gte: minPrice, $lte: maxPrice },
-  }).exec();
+  };
+
+  if (categoryFilter && categoryFilter !== "All Categories") {
+    // Apply the category filter if a specific category is selected
+    searchQuery.category = categoryFilter;
+  } else {
+    // If "All Categories" is selected, filter by listed categories
+    searchQuery.category = { $in: categories.map((category) => category.name) };
+  }
+
+  // Fetch products that meet the search criteria
+  const filteredProducts = await Product.find(searchQuery).exec();
 
   const totalFilteredProducts = filteredProducts.length;
   const totalPages = Math.ceil(totalFilteredProducts / limit);
@@ -321,6 +341,8 @@ const getFilteredProducts = async (query) => {
 
 const ShopSearch = async (req, res) => {
   try {
+    const categories = await Category.find({ islisted: true });
+
     const {
       products,
       currentPage,
@@ -331,6 +353,7 @@ const ShopSearch = async (req, res) => {
 
     res.render("UserShop", {
       products,
+      categories,
       currentPage,
       totalPages,
       selectedMinPrice,

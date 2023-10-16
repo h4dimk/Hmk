@@ -19,15 +19,14 @@ const userSchema = new mongoose.Schema({
   },
   isActive:{
     type:Boolean,
-    default:true
+    default:true,
   },
   otp:{
-    type:String
+    type:String,
   },
-  // cart:{
-  //   type:mongoose.Schema.Types.ObjectId,
-  //   ref: "cart",
-  // }
+ wallet:{
+  type:Number,
+ }
 });
 
 const User = mongoose.model("User", userSchema);
