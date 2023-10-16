@@ -369,8 +369,12 @@ const searchProducts = async (searchText, query) => {
   const selectedMinPrice = parseFloat(query.minPrice) || 0;
   const selectedMaxPrice = parseFloat(query.maxPrice) || Number.MAX_VALUE;
 
+  const categories = await Category.find({ islisted: true });
+
+
   // Construct the search query using regular expressions
   const searchQuery = {
+    category:{ $in: categories.map((category) => category.name) },
     $or: [
       { name: { $regex: searchText, $options: "i" } },
       { category: { $regex: searchText, $options: "i" } },
