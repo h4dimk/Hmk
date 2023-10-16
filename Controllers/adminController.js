@@ -586,6 +586,21 @@ const adminOrdersDetailsPost = async (req, res) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
+    // Check if the order has an online payment
+    if (
+      orderStatus === "Cancelled" &&
+      order.paymentMethod === "Online Payment"
+    ) {
+      // Refund the amount to the user's wallet
+      const userId = order.userId;
+      const refundAmount = order.totalAmount;
+      const user = await userModel.findOne({ email: userId });
+
+      if (user) {
+        user.wallet += refundAmount;
+        await user.save();
+      }
+    }
     // Update the order's status
     order.status = orderStatus;
     await order.save();

@@ -253,23 +253,22 @@ canvas {
   border: 1px solid #ccc;
 }
 
-  /* Add your custom CSS styles here */
-  .container {
-    padding: 20px;
-  }
+/* Add your custom CSS styles here */
+.container {
+  padding: 20px;
+}
 
- 
-  .coupon-form {
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 5px;
-  }
+.coupon-form {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 5px;
+}
 
-  .coupon-form h3 {
-    color: #333;
-  }
+.coupon-form h3 {
+  color: #333;
+}
 
-  /* Custom styling for the Coupons section */
+/* Custom styling for the Coupons section */
 .coupons {
   background-color: #f8f8f8;
   padding: 20px;
@@ -290,8 +289,8 @@ canvas {
   box-shadow: 2px 2px 5px #aaa;
   display: flex;
   justify-content: space-between;
-  width: 100%; 
-  margin: 10px auto; 
+  width: 100%;
+  margin: 10px auto;
 }
 
 .coupon-details {
@@ -304,12 +303,11 @@ canvas {
   justify-content: space-between;
 }
 
-.button-container{
+.button-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
 
 .coupon-label {
   font-weight: bold;

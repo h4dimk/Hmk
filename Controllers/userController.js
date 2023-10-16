@@ -966,6 +966,17 @@ const CancelOrder = async (req, res) => {
   }
 };
 
+const UserProfileGet = async (req,res) =>{
+  try {
+    const userId =req.session.login;
+    const user = await userModel.findOne({email:userId});
+
+    res.render("UserProfile",{user})
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   userSignUpGet,
   otpEntryGet,
@@ -994,4 +1005,5 @@ module.exports = {
   userOrdersPost,
   ConfirmOrder,
   CancelOrder,
+  UserProfileGet,
 };
