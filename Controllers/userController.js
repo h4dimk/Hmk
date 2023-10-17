@@ -886,6 +886,73 @@ const userOrdersPost = async (req, res) => {
           res.status(500).json({ error: "Payment failed" });
         }
       });
+    } else if (paymentMethod === "Wallet Payment") {
+      const userDoc = await userModel.findOne({ email: user });
+
+      let totalAmount = 0;
+
+      const updatedStockQuantities = {};
+
+      for (const cartItem of carts) {
+        totalAmount += cartItem.price * cartItem.quantity;
+
+        const product = await Product.findById(cartItem.productId);
+
+        if (product) {
+          const orderedQuantity = cartItem.quantity;
+          const currentStockQuantity = product.stockQuantity;
+
+          if (orderedQuantity <= currentStockQuantity) {
+            product.stockQuantity -= orderedQuantity;
+            await product.save();
+
+            updatedStockQuantities[product._id] =
+              currentStockQuantity - orderedQuantity;
+          } else {
+            req.session.error = "The product you added is out of stock";
+            return res.redirect("/user/cart/checkout");
+          }
+        }
+      }
+
+      if (!userDoc) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      // Check if the user has enough balance in the wallet
+      if (userDoc.wallet < totalAmount) {
+        return res.status(400).json({ error: "Insufficient wallet balance" });
+      }
+
+      // Deduct the order total from the user's wallet
+      userDoc.wallet -= totalAmount;
+      await userDoc.save();
+
+      const orderId = generateRandomOrderId();
+
+      const order = new Order({
+        orderId: orderId,
+        userId: user,
+        products: carts,
+        name,
+        email,
+        state,
+        district,
+        city,
+        phone,
+        pincode,
+        paymentMethod,
+        status: "Pending",
+        totalAmount,
+        orderDate: new Date(),
+      });
+
+      await order.save();
+
+      // Delete the user's cart after placing the order
+      await Cart.deleteMany({ userId: user });
+
+      return res.json({ wallet: true });
     }
   } catch (error) {
     console.log(error);

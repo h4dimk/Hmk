@@ -187,6 +187,7 @@
                 >
                   <option value="Cash On Delivery">Cash On Delivery</option>
                   <option value="Online Payment">Online Payment</option>
+                  <option value="Wallet Payment">Wallet Payment</option>
                   <!-- Add more options as needed -->
                 </select>
               </div>
@@ -410,6 +411,8 @@
           paymentMethod,
         };
 
+        console.log(orderData);
+
         fetch("/user/orders", {
           method: "POST",
           headers: {
@@ -432,6 +435,9 @@
             } else if (paymentMethod === "Online Payment" && data.online) {
               // Handle online payment
               razorpayPayment(data.order, orderData);
+            } else if (paymentMethod === "Wallet Payment" && data.wallet) {
+              // Redirect to the UserOrders page
+              window.location.href = "/user/orders";
             } else {
               // Handle the case where data.success is false
               console.error("Server reported failure");

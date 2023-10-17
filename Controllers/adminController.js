@@ -589,7 +589,8 @@ const adminOrdersDetailsPost = async (req, res) => {
     // Check if the order has an online payment
     if (
       orderStatus === "Cancelled" &&
-      order.paymentMethod === "Online Payment"
+      (order.paymentMethod === "Online Payment" ||
+        order.paymentMethod === "Wallet Payment")
     ) {
       // Refund the amount to the user's wallet
       const userId = order.userId;
