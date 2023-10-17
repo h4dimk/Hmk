@@ -371,10 +371,9 @@ const searchProducts = async (searchText, query) => {
 
   const categories = await Category.find({ islisted: true });
 
-
   // Construct the search query using regular expressions
   const searchQuery = {
-    category:{ $in: categories.map((category) => category.name) },
+    category: { $in: categories.map((category) => category.name) },
     $or: [
       { name: { $regex: searchText, $options: "i" } },
       { category: { $regex: searchText, $options: "i" } },
@@ -966,16 +965,20 @@ const CancelOrder = async (req, res) => {
   }
 };
 
-const UserProfileGet = async (req,res) =>{
+const UserProfileGet = async (req, res) => {
   try {
-    const userId =req.session.login;
-    const user = await userModel.findOne({email:userId});
+    if (req.session.login) {
+      const userId = req.session.login;
+      const user = await userModel.findOne({ email: userId });
 
-    res.render("UserProfile",{user})
+      res.render("UserProfile", { user });
+    } else {
+      res.redirect("/user/login");
+    }
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 module.exports = {
   userSignUpGet,

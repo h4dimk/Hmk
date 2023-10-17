@@ -99,67 +99,54 @@
       </div>
     </header>
 
-    
+    <div class="container mt-3">
+      <div class="profile-header">
+        <h1>User Profile</h1>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="profile-info">
+            <div class="profile-info-item">
+              <label for="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value="<%=user.username%>"
+                disabled
+              />
+            </div>
 
-    
+            <div class="profile-info-item">
+              <label for="phone">Phone Number:</label>
+              <input type="text" id="phone" value="<%=user.phonenumber%>""
+              disabled />
+            </div>
 
-    <div class="container">
-      <h1>User Profile</h1>
-      <label for="username">Username:</label>
-      <input type="text" id="username" value="JohnDoe" disabled />
+            <div class="profile-info-item">
+              <label for="email">Email:</label>
+              <input type="email" id="email" value="<%=user.email%>" disabled />
+            </div>
 
-      <label for="phone">Phone Number:</label>
-      <input type="text" id="phone" value="123-456-7890" disabled />
-
-      <label for="email">Email:</label>
-      <input type="email" id="email" value="johndoe@example.com" disabled />
-
-      <button class="btn-edit" id="editProfile">Edit Profile</button>
+            <button class="btn cl0 bg3 hov-btn3 p-lr-15 mt-2" id="editProfile">
+              Edit Profile
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="user-wallet-container">
+            <div class="card text-center mt-3">
+              <div class="card-header">User Wallet</div>
+              <div class="card-body">
+                <!-- Wallet information goes here -->
+                <p>Balance: ₹<%=user.wallet %></p>
+                <p>Transactions: 10</p>
+                <!-- You can add more wallet details as needed -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <script>
-      const editButton = document.getElementById("editProfile");
-      const usernameField = document.getElementById("username");
-      const phoneField = document.getElementById("phone");
-      const emailField = document.getElementById("email");
-
-      editButton.addEventListener("click", function () {
-        // Enable input fields for editing
-        usernameField.disabled = false;
-        phoneField.disabled = false;
-        emailField.disabled = false;
-
-        // Update button text and behavior
-        editButton.textContent = "Save Changes";
-        editButton.removeEventListener("click", this);
-        editButton.addEventListener("click", saveChanges);
-      });
-
-      function saveChanges() {
-        // Retrieve edited data from input fields
-        const newUsername = usernameField.value;
-        const newPhone = phoneField.value;
-        const newEmail = emailField.value;
-
-        // TODO: Send data to the server to save changes
-
-        // Disable input fields and revert button behavior
-        usernameField.disabled = true;
-        phoneField.disabled = true;
-        emailField.disabled = true;
-        editButton.textContent = "Edit Profile";
-        editButton.removeEventListener("click", saveChanges);
-        editButton.addEventListener("click", function () {
-          // Re-enable editing
-          usernameField.disabled = false;
-          phoneField.disabled = false;
-          emailField.disabled = false;
-          editButton.textContent = "Save Changes";
-          editButton.removeEventListener("click", this);
-          editButton.addEventListener("click", saveChanges);
-        });
-      }
-    </script>
 
     <!-- Footer -->
     <footer class="bg3 p-t-75 p-b-32">
@@ -287,6 +274,50 @@
       </span>
     </div>
 
+    <!--===============================================================================================-->
+    <script>
+      const editButton = document.getElementById("editProfile");
+      const usernameField = document.getElementById("username");
+      const phoneField = document.getElementById("phone");
+      const emailField = document.getElementById("email");
+
+      editButton.addEventListener("click", function () {
+        // Enable input fields for editing
+        usernameField.disabled = false;
+        phoneField.disabled = false;
+        emailField.disabled = false;
+
+        // Update button text and behavior
+        editButton.textContent = "Save Changes";
+        editButton.removeEventListener("click", this);
+        editButton.addEventListener("click", saveChanges);
+      });
+
+      function saveChanges() {
+        // Retrieve edited data from input fields
+        const newUsername = usernameField.value;
+        const newPhone = phoneField.value;
+        const newEmail = emailField.value;
+
+        // TODO: Send data to the server to save changes
+
+        // Disable input fields and revert button behavior
+        usernameField.disabled = true;
+        phoneField.disabled = true;
+        emailField.disabled = true;
+        editButton.textContent = "Edit Profile";
+        editButton.removeEventListener("click", saveChanges);
+        editButton.addEventListener("click", function () {
+          // Re-enable editing
+          usernameField.disabled = false;
+          phoneField.disabled = false;
+          emailField.disabled = false;
+          editButton.textContent = "Save Changes";
+          editButton.removeEventListener("click", this);
+          editButton.addEventListener("click", saveChanges);
+        });
+      }
+    </script>
     <!--===============================================================================================-->
     <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
     <!--===============================================================================================-->

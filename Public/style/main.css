@@ -154,6 +154,54 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 }
 
 /*//////////////////////////////////////////////////////////////////
+[  User Profile Styles  ]*/
+
+.profile-header {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.profile-header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+}
+
+.profile-info-item {
+  margin: 10px 0;
+}
+
+.profile-info-item label {
+  display: inline-block;
+  width: 150px;
+  font-weight: bold;
+  color: #555;
+}
+
+.profile-info-item input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd; 
+  border-radius: 3px;
+  background-color: #f9f9f9; 
+}
+
+/* Responsive Styling */
+@media (max-width: 600px) {
+  .profile-info-item label {
+    width: 100%; /* Adjust for mobile devices */
+  }
+}
+
+.profile-info {
+  margin-bottom: 30px;
+}
+
+.user-wallet-container {
+  height: 100%; 
+}
+
+/*//////////////////////////////////////////////////////////////////
 [ Pagination Styles  ]*/
 
 .pagination {
