@@ -312,7 +312,7 @@ const getFilteredProducts = async (query) => {
 
   // Construct the search query
   const searchQuery = {
-    price: { $gte: minPrice, $lte: maxPrice },
+    sellingPrice: { $gte: minPrice, $lte: maxPrice },
   };
 
   if (categoryFilter && categoryFilter !== "All Categories") {
@@ -378,7 +378,7 @@ const searchProducts = async (searchText, query) => {
       { name: { $regex: searchText, $options: "i" } },
       { category: { $regex: searchText, $options: "i" } },
     ],
-    price: { $gte: selectedMinPrice, $lte: selectedMaxPrice },
+    sellingPrice: { $gte: selectedMinPrice, $lte: selectedMaxPrice },
   };
 
   // Count the total number of matching products
@@ -599,50 +599,6 @@ const userCartGet = async (req, res) => {
   }
 };
 
-// const userCartPost = async (req, res) => {
-//   try {
-//     const productId = req.params.id;
-//     const product = await Product.findById(productId);
-
-//     const quantity = req.body["num-product"];
-//     const price = product.price;
-
-//     const userId = req.user.id;
-
-//     let user = await userModel.findById(userId).populate("cart");
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     if (!user.cart) {
-//       const cart = new Cart({
-//         productImg: product.imagePath[0],
-//         name: product.name,
-//         price: price,
-//         quantity: parseInt(quantity),
-//         total: quantity * price,
-//       });
-
-//       await cart.save();
-
-//       user.cart = cart;
-//     } else {
-//       const cartItem = user.cart;
-//       cartItem.quantity += parseInt(quantity);
-//       cartItem.total += quantity * price;
-
-//       await cartItem.save();
-//     }
-
-//     await user.save();
-
-//     res.redirect("/user/cart");
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-
 const userCartPost = async (req, res) => {
   try {
     const user = req.session.login;
@@ -653,7 +609,7 @@ const userCartPost = async (req, res) => {
     const product = await Product.findById(productId);
 
     const quantity = req.body["num-product"];
-    const price = product.price;
+    const price = product.sellingPrice;
 
     const cartItem = await Cart.findOne({ userId: user, name: product.name });
 
@@ -667,7 +623,7 @@ const userCartPost = async (req, res) => {
         productId: product._id,
         productImg: product.imagePath[0],
         name: product.name,
-        price: product.price,
+        price: product.sellingPrice,
         quantity: parseInt(quantity),
         total: quantity * price,
       });
@@ -746,9 +702,8 @@ const CartProductin = async (req, res) => {
 const CheckoutGet = async (req, res) => {
   try {
     const user = req.session.login;
-    const error = req.session.error;
     const carts = await Cart.find({ userId: user });
-    res.render("CheckoutPage", { carts, error });
+    res.render("CheckoutPage", { carts });
   } catch (error) {
     console.error(error);
   }
@@ -807,9 +762,6 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
-          } else {
-            req.session.error = "The product you added is out of stock";
-            return res.redirect("/user/cart/checkout");
           }
         }
       }
@@ -860,9 +812,6 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
-          } else {
-            req.session.error = "The product you added is out of stock";
-            return res.redirect("/user/cart/checkout");
           }
         }
       }
@@ -908,20 +857,12 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
-          } else {
-            req.session.error = "The product you added is out of stock";
-            return res.redirect("/user/cart/checkout");
           }
         }
       }
 
       if (!userDoc) {
         return res.status(400).json({ error: "User not found" });
-      }
-
-      // Check if the user has enough balance in the wallet
-      if (userDoc.wallet < totalAmount) {
-        return res.status(400).json({ error: "Insufficient wallet balance" });
       }
 
       // Deduct the order total from the user's wallet

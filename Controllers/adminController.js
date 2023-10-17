@@ -360,7 +360,8 @@ const addProductGet = async (req, res) => {
 
 const addProductPost = async (req, res) => {
   try {
-    const { name, description, price, category, stockQuantity } = req.body;
+    const { name, description, price, discount, category, stockQuantity } =
+      req.body;
     const filenames = req.files.map((file) => file.filename);
     if (price < 0) {
       // Check if the price is less than zero
@@ -372,11 +373,13 @@ const addProductPost = async (req, res) => {
       req.session.error = "Stock Quantity cannot be negative value";
       return res.redirect("/admin/products/add");
     }
-
+    const sellingPrice = Math.round(price - price * (discount / 100));
     const product = new Product({
       name: name,
       description: description.trim(),
       price: price,
+      discount: discount,
+      sellingPrice: sellingPrice,
       category: category,
       imagePath: filenames,
       stockQuantity: stockQuantity,
@@ -410,7 +413,7 @@ const editProductGet = async (req, res) => {
 const editProductPost = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, price, category, stockQuantity } = req.body;
+    const { name, description, price,discount, category, stockQuantity } = req.body;
     const filenames = req.files ? req.files.map((file) => file.filename) : null;
     console.log(req.file);
     if (price < 0) {
@@ -430,10 +433,14 @@ const editProductPost = async (req, res) => {
       return res.status(404).send("Product not found");
     }
 
+    const sellingPrice = Math.round(price - price * (discount / 100));
+
     // Update the product fields
     product.name = name;
     product.description = description.trim();
     product.price = price;
+    product.discount = discount;
+    product.sellingPrice = sellingPrice;
     product.category = category;
     product.stockQuantity = stockQuantity;
 

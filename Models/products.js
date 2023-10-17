@@ -13,6 +13,14 @@ const ProductSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  discount: {
+    type: Number,
+    required: true,
+  },
+  sellingPrice: {
+    type: Number,
+    required: true,
+  },
   category: {
     type: String,
     required: true,
@@ -21,7 +29,7 @@ const ProductSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  imagePath:[{
+  imagePath: [{
     type: String,
     required: true,
   }],

@@ -51,6 +51,16 @@
             />
           </div>
           <div class="mb-3">
+            <label for="discount" class="form-label">Discount (%)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="discount"
+              name="discount"
+              required
+            />
+          </div>
+          <div class="mb-3">
             <label for="category" class="form-label">Category</label>
             <select class="form-select" id="category" name="category" required>
               <% categories.forEach(category => { if(category.islisted){%>

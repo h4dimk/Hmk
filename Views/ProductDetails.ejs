@@ -186,7 +186,13 @@
           <p class="mb-3 h5">
             <strong>Category:</strong> <%= product.category%>
           </p>
-          <p class="mb-3 h5"><strong>Price:</strong> ₹<%= product.price%></p>
+          <!-- Display Original Price and Discount Percentage -->
+          <p class="mb-3 h6"><strong>Discount:</strong> <%= product.discount%>% off</p>
+          <p class="mb-3 h6">
+            <strong>MRP:</strong>
+            <s style="text-decoration: line-through">₹<%= product.price%></s>
+          </p>
+          <p class="mb-3 h5"><strong>Price:</strong> ₹<%= product.sellingPrice%></p>
           <p class="mb-4 h5"><strong>Description:</strong></p>
           <p class="mb-4 h6"><%= product.description%></p>
           <p class="mb-4 h6"><strong>Quantity:</strong></p>
