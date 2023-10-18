@@ -72,7 +72,7 @@ router
   .post("/orders/details/:id", adminController.adminOrdersDetailsPost);
 
   router
-  .get("/coupon",adminController.adminCouponGet)
+  .get("/coupon",checkAdminLogin,adminController.adminCouponGet)
   .post("/coupon/add",adminController.addCoupon)
   .patch("/coupon/list/:id",adminController.couponList)
   .delete("/coupon/delete/:id", adminController.deleteCoupon)
