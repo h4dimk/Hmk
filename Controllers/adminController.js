@@ -4,6 +4,7 @@ const Category = require("../Models/category");
 const Admin = require("../Models/admin");
 const Banner = require("../Models/banner");
 const Order = require("../Models/order");
+const Coupon = require("../Models/coupon");
 
 const adminHomeGet = (req, res) => {
   try {
@@ -413,7 +414,8 @@ const editProductGet = async (req, res) => {
 const editProductPost = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, price,discount, category, stockQuantity } = req.body;
+    const { name, description, price, discount, category, stockQuantity } =
+      req.body;
     const filenames = req.files ? req.files.map((file) => file.filename) : null;
     console.log(req.file);
     if (price < 0) {
@@ -620,9 +622,73 @@ const adminOrdersDetailsPost = async (req, res) => {
   }
 };
 
-const adminCouponGet = (req, res) => {
+const adminCouponGet = async (req, res) => {
   try {
-    res.render("adminCoupon");
+    const coupons = await Coupon.find();
+    res.render("adminCoupon", { coupons });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const addCoupon = async (req, res) => {
+  try {
+    console.log("addcoupon reached");
+    const {
+      code,
+      discountPercentage,
+      minPurchaseAmount,
+      createdAt,
+      expiresAt,
+      active,
+      maxRedimableAmount,
+    } = req.body;
+    const newCoupon = new Coupon({
+      code,
+      discountPercentage,
+      minPurchaseAmount,
+      createdAt: new Date(),
+      expiresAt,
+      active: true,
+      maxRedimableAmount,
+    });
+    await newCoupon.save();
+    return res.redirect("/admin/coupon");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const couponList = async (req, res) => {
+  try {
+    const couponId = req.params.id;
+    const active = req.body.active;
+
+    // Find and update the coupon's active status in the database
+    const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, { active });
+
+    if (!updatedCoupon) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Coupon not found" });
+    }
+
+    // Send a success response
+    res.status(200).json({
+      success: true,
+      message: `Coupon ${active ? "listed" : "unlisted"} successfully`,
+    });
+  } catch (error) {
+    console.error("Error toggling coupon:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+const deleteCoupon = (req, res) => {
+  try {
+    Coupon.findByIdAndDelete(req.params.id).then((res) => {
+      console.log(res + " deleted");
+    });
   } catch (error) {
     console.error(error);
   }
@@ -658,4 +724,7 @@ module.exports = {
   adminOrdersDetailsGet,
   adminOrdersDetailsPost,
   adminCouponGet,
+  addCoupon,
+  couponList,
+  deleteCoupon,
 };

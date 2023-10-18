@@ -299,9 +299,16 @@ canvas {
 
 .coupon-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
+  align-items: flex-end;
 }
+
+.coupon-actions button + button {
+  margin-left: 10px; 
+}
+
+
 
 .button-container {
   display: flex;

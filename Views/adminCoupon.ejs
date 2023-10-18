@@ -12,57 +12,49 @@
     <div class="col-md-6">
       <div class="coupon-form">
         <h3>Add a New Coupon</h3>
-        <form action="/coupons/add" method="POST">
+        <form action="/admin/coupon/add" method="POST">
           <div class="form-group mt-4">
             <label for="code">Coupon Code</label>
-            <input type="text" name="code" class="form-control" required />
+            <input type="text" name="code" class="form-control mt-2" required />
           </div>
-          <div class="form-group">
+          <div class="form-group mt-3">
             <label for="discountPercentage">Discount Percentage</label>
             <input
               type="number"
               name="discountPercentage"
-              class="form-control"
+              class="form-control mt-2"
               required
             />
           </div>
-          <div class="form-group">
+          <div class="form-group mt-3">
             <label for="minPurchaseAmount">Minimum Purchase Amount</label>
             <input
               type="number"
               name="minPurchaseAmount"
-              class="form-control"
+              class="form-control mt-2"
               required
             />
           </div>
-          <div class="form-group">
-            <label for="createdAt">Creation Date</label>
-            <input type="date" name="createdAt" class="form-control" required />
-          </div>
-          <div class="form-group">
+          <div class="form-group mt-3">
             <label for="expiresAt">Expiration Date</label>
-            <input type="date" name="expiresAt" class="form-control" required />
-          </div>
-          <div class="form-check">
             <input
-              type="checkbox"
-              name="active"
-              id="active"
-              value="true"
-              class="form-check-input"
+              type="date"
+              name="expiresAt"
+              class="form-control mt-2"
+              required
             />
-            <label for="active" class="form-check-label">Active</label>
           </div>
-          <div class="form-group">
+
+          <div class="form-group mt-3">
             <label for="maxRedimableAmount">Maximum Redeemable Amount</label>
             <input
               type="number"
               name="maxRedimableAmount"
-              class="form-control"
+              class="form-control mt-2"
               required
             />
           </div>
-          <button type="submit" class="btn btn-primary">Add Coupon</button>
+          <button type="submit" class="btn btn-primary mt-3">Add Coupon</button>
         </form>
       </div>
     </div>
@@ -71,19 +63,13 @@
       <div class="coupons">
         <h3>Coupons</h3>
         <ul class="list-group mt-4">
-          <% const dummyCoupons = [ { code: "DUMMYCODE1", discountPercentage:
-          10, minPurchaseAmount: 50, createdAt: "2023-09-15", expiresAt:
-          "2023-09-30", active: true, maxRedimableAmount: 100 }, { code:
-          "DUMMYCODE2", discountPercentage: 20, minPurchaseAmount: 75,
-          createdAt: "2023-09-10", expiresAt: "2023-09-25", active: false,
-          maxRedimableAmount: 150 } ]; %> <% for (const coupon of dummyCoupons)
-          { %>
+          <% coupons.forEach(coupon => {%>
           <li class="list-group-item coupon-item">
             <div class="coupon-details">
               <strong class="coupon-label">Coupon Code:</strong> <%= coupon.code
               %><br />
               <strong class="coupon-label">Discount Percentage:</strong> <%=
-              coupon.discountPercentage %><br />
+              coupon.discountPercentage %>%<br />
               <strong class="coupon-label">Minimum Purchase Amount:</strong> <%=
               coupon.minPurchaseAmount %><br />
               <strong class="coupon-label">Creation Date:</strong> <%=
@@ -96,16 +82,62 @@
               <%= coupon.maxRedimableAmount %><br />
             </div>
             <div class="coupon-actions">
-              <button class="btn btn-primary">Edit</button>
-              <button class="btn btn-danger">Delete</button>
-              <button class="btn btn-success">List</button>
+              <button
+              class="btn btn-danger"
+              onclick="deleteCoupon('<%= coupon._id %>')"
+            >
+              Delete
+            </button>
+              <button
+                class="btn btn-success list-button"
+                data-coupon-id="<%= coupon._id %>"
+              >
+                <% if (coupon.active) { %> Unlist <% } else { %> List <% } %>
+              </button>
             </div>
           </li>
-          <% } %>
+          <%})%>
         </ul>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+   function deleteCoupon(id) {
+    fetch("/admin/coupon/delete/" + id, {
+      method: "delete",
+    });
+    window.location.reload();
+  }
+  $(document).ready(function () {
+    // Listen for clicks on the "List" button
+    $(".list-button").on("click", function () {
+      const couponId = $(this).data("coupon-id");
+      console.log($(this).text().trim());
+      const active = $(this).text().trim() === "List";
+
+      const listButton = $(this);
+
+      // Use AJAX to update the coupon's "active" status
+      $.ajax({
+        type: "PATCH",
+        url: `/admin/coupon/list/${couponId}`,
+        data: { active },
+        success: function (response) {
+          if (active) {
+            listButton.text("Unlist");
+          } else {
+            listButton.text("List");
+          }
+        },
+        error: function (error) {
+          // Handle error
+          console.error("Error list coupon:", error);
+        },
+      });
+    });
+  });
+</script>
 
 <%- include('footer') %>

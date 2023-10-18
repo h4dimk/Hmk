@@ -72,6 +72,12 @@ router
   .post("/orders/details/:id", adminController.adminOrdersDetailsPost);
 
   router
-  .get("/coupon",checkAdminLogin,adminController.adminCouponGet)
+  .get("/coupon",adminController.adminCouponGet)
+  .post("/coupon/add",adminController.addCoupon)
+  .patch("/coupon/list/:id",adminController.couponList)
+  .delete("/coupon/delete/:id", adminController.deleteCoupon)
+
+
+
 
 module.exports = router;
