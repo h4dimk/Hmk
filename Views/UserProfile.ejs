@@ -130,6 +130,13 @@
             <button class="btn cl0 bg3 hov-btn3 p-lr-15 mt-2" id="editProfile">
               Edit Profile
             </button>
+            <button
+              class="btn cl0 bg3 hov-btn3 p-lr-15 mt-2"
+              id="saveChanges"
+              style="display: none"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
         <div class="col-md-6">
@@ -276,46 +283,65 @@
 
     <!--===============================================================================================-->
     <script>
-      const editButton = document.getElementById("editProfile");
+      // Variables for profile fields
       const usernameField = document.getElementById("username");
       const phoneField = document.getElementById("phone");
-      const emailField = document.getElementById("email");
 
-      editButton.addEventListener("click", function () {
+      // Save Changes button
+      const saveButton = document.getElementById("saveChanges");
+      saveButton.addEventListener("click", saveChanges);
+
+      // Edit Profile button
+      const editButton = document.getElementById("editProfile");
+      editButton.addEventListener("click", enableEditing);
+
+      function enableEditing() {
         // Enable input fields for editing
         usernameField.disabled = false;
         phoneField.disabled = false;
-        emailField.disabled = false;
 
-        // Update button text and behavior
-        editButton.textContent = "Save Changes";
-        editButton.removeEventListener("click", this);
-        editButton.addEventListener("click", saveChanges);
-      });
+        // Show the "Save Changes" button and hide "Edit Profile"
+        saveButton.style.display = "inline-block";
+        editButton.style.display = "none";
+      }
 
       function saveChanges() {
         // Retrieve edited data from input fields
         const newUsername = usernameField.value;
         const newPhone = phoneField.value;
-        const newEmail = emailField.value;
 
-        // TODO: Send data to the server to save changes
+        // Create an object with the updated user data
+        const updatedUserData = {
+          newUsername,
+          newPhone,
+        };
 
-        // Disable input fields and revert button behavior
-        usernameField.disabled = true;
-        phoneField.disabled = true;
-        emailField.disabled = true;
-        editButton.textContent = "Edit Profile";
-        editButton.removeEventListener("click", saveChanges);
-        editButton.addEventListener("click", function () {
-          // Re-enable editing
-          usernameField.disabled = false;
-          phoneField.disabled = false;
-          emailField.disabled = false;
-          editButton.textContent = "Save Changes";
-          editButton.removeEventListener("click", this);
-          editButton.addEventListener("click", saveChanges);
-        });
+        // Send an AJAX request to the server
+        fetch("/user/profile/edit-profile", {
+          method: "PUT", // Assuming you're using the PUT method on the server
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedUserData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Update was successful
+              console.log("Profile updated successfully");
+              // Disable input fields and hide "Save Changes," show "Edit Profile" again
+              usernameField.disabled = true;
+              phoneField.disabled = true;
+              saveButton.style.display = "none";
+              editButton.style.display = "inline-block";
+            } else {
+              // There was an error
+              console.error("Failed to update profile: ");
+            }
+          })
+          .catch((error) => {
+            console.error("An error occurred:", error);
+          });
       }
     </script>
     <!--===============================================================================================-->

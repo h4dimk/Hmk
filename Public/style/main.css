@@ -201,6 +201,14 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   height: 100%; 
 }
 
+.user-wallet-container .card-header{
+  font-size: larger;
+  font-weight: bold;
+}
+
+.user-wallet-container .card-body{
+  font-size: medium;
+}
 /*//////////////////////////////////////////////////////////////////
 [ Pagination Styles  ]*/
 

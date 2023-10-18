@@ -32,21 +32,21 @@ router
   .get("/shop/product/:id", userController.ProductDetailsGet);
 
 router
-  .get("/cart",checkUserStatus, userController.userCartGet)
+  .get("/cart", checkUserStatus, userController.userCartGet)
   .post("/cart/:id", userController.userCartPost)
   .put("/cart/decrease/:id", userController.CartProductdc)
   .put("/cart/increase/:id", userController.CartProductin)
   .delete("/cart/delete/:id", userController.DeleteCart)
-  .get("/cart/checkout",checkUserStatus, userController.CheckoutGet);
+  .get("/cart/checkout", checkUserStatus, userController.CheckoutGet);
 
 router
-  .get("/orders",checkUserStatus, userController.userOrdersGet)
+  .get("/orders", checkUserStatus, userController.userOrdersGet)
   .post("/orders", userController.userOrdersPost)
   .post("/orders/cancel-order/:orderId", userController.CancelOrder)
-  .post("/confirmOrder",userController.ConfirmOrder)
+  .post("/confirmOrder", userController.ConfirmOrder);
 
 router
-.get("/profile",checkUserStatus,userController.UserProfileGet)
-
+  .get("/profile", checkUserStatus, userController.UserProfileGet)
+  .put("/profile/edit-profile", userController.editUserProfile);
 
 module.exports = router;

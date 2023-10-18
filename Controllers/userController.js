@@ -988,6 +988,22 @@ const UserProfileGet = async (req, res) => {
   }
 };
 
+const editUserProfile = async (req, res) => {
+  try {
+    const userId = req.session.login;
+    const { newUsername, newPhone } = req.body;
+    const user = await userModel.findOne({ email: userId });
+
+    user.username = newUsername;
+    user.phonenumber = newPhone;
+
+    await user.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+  }
+};
 module.exports = {
   userSignUpGet,
   otpEntryGet,
@@ -1017,4 +1033,5 @@ module.exports = {
   ConfirmOrder,
   CancelOrder,
   UserProfileGet,
+  editUserProfile,
 };
