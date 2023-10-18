@@ -238,6 +238,34 @@
                 <p><span id="total-amount">₹0</span></p>
               </div>
             </div>
+
+            <!-- Apply Coupon Section -->
+            <div class="mt-4">
+              <div class="text-center">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      id="couponCode"
+                      class="form-control"
+                      placeholder="Enter coupon code"
+                      aria-label="Coupon code"
+                      aria-describedby="apply-coupon-button"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        type="button"
+                        class="btn cl0 bg3 hov-btn3 p-lr-15 trans-04"
+                        id="apply-coupon-button"
+                        onclick="applyCoupon()"
+                      >
+                        Apply Coupon
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <% if (locals.error) { %>
           <p style="color: red"><%= error %></p>
@@ -387,6 +415,24 @@
 
     <!--===============================================================================================-->
 
+    <script>
+      function updateTotalAmount() {
+        const cartItemTotals = document.querySelectorAll(".cart-item-total");
+
+        let totalAmount = 0;
+
+        cartItemTotals.forEach((item) => {
+          totalAmount += parseFloat(item.getAttribute("data-total"));
+        });
+
+        const totalAmountSpan = document.getElementById("total-amount");
+        totalAmountSpan.textContent = `₹${totalAmount.toFixed(2)}`;
+      }
+
+      window.addEventListener("load", updateTotalAmount);
+    </script>
+    <!--===============================================================================================-->
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
@@ -531,24 +577,6 @@
           console.error("Error:", error);
         }
       }
-    </script>
-    <!--===============================================================================================-->
-
-    <script>
-      function updateTotalAmount() {
-        const cartItemTotals = document.querySelectorAll(".cart-item-total");
-
-        let totalAmount = 0;
-
-        cartItemTotals.forEach((item) => {
-          totalAmount += parseFloat(item.getAttribute("data-total"));
-        });
-
-        const totalAmountSpan = document.getElementById("total-amount");
-        totalAmountSpan.textContent = `₹${totalAmount.toFixed(2)}`;
-      }
-
-      window.addEventListener("load", updateTotalAmount);
     </script>
 
     <!--===============================================================================================-->

@@ -9,6 +9,7 @@ const Order = require("../Models/order");
 const Category = require("../Models/category");
 const RazorPay = require("razorpay");
 const Admin = require("../Models/admin");
+const Coupon = require("../Models/coupon");
 
 // Create a transporter object using your email service provider's SMTP settings
 const transporter = nodemailer.createTransport({
@@ -708,6 +709,29 @@ const CheckoutGet = async (req, res) => {
     console.error(error);
   }
 };
+
+// const ApplyCouponCart = async (req, res) => {
+//   const { couponCode } = req.body;
+
+//   try {
+//     // Find the coupon based on the provided couponCode
+//     const coupon = await Coupon.findOne({ code: couponCode });
+
+//     if (!coupon) {
+//       // Coupon not found
+//       return res.json({ valid: false });
+//     }
+
+//     // Calculate discount and send coupon details to the front end
+//     const discountPercentage = coupon.discountPercentage;
+//     const minPurchaseAmount = coupon.minPurchaseAmount;
+
+//     res.json({ valid: true, discountPercentage, minPurchaseAmount });
+//   } catch (error) {
+//     console.error("Error applying coupon:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 const userOrdersGet = async (req, res) => {
   try {

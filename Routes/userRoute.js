@@ -37,8 +37,7 @@ router
   .put("/cart/decrease/:id", userController.CartProductdc)
   .put("/cart/increase/:id", userController.CartProductin)
   .delete("/cart/delete/:id", userController.DeleteCart)
-  .get("/cart/checkout", checkUserStatus, userController.CheckoutGet);
-
+  .get("/cart/checkout", checkUserStatus, userController.CheckoutGet)
 router
   .get("/orders", checkUserStatus, userController.userOrdersGet)
   .post("/orders", userController.userOrdersPost)

@@ -70,7 +70,7 @@
               %><br />
               <strong class="coupon-label">Discount Percentage:</strong> <%=
               coupon.discountPercentage %>%<br />
-              <strong class="coupon-label">Minimum Purchase Amount:</strong> <%=
+              <strong class="coupon-label">Minimum Purchase Amount:</strong>₹<%=
               coupon.minPurchaseAmount %><br />
               <strong class="coupon-label">Creation Date:</strong> <%=
               coupon.createdAt %><br />
@@ -79,7 +79,7 @@
               <strong class="coupon-label">Active:</strong> <%= coupon.active ?
               'Yes' : 'No' %><br />
               <strong class="coupon-label">Maximum Redeemable Amount:</strong>
-              <%= coupon.maxRedimableAmount %><br />
+              ₹<%= coupon.maxRedimableAmount %><br />
             </div>
             <div class="coupon-actions">
               <button
@@ -130,9 +130,9 @@
           } else {
             listButton.text("List");
           }
+          window.location.reload();
         },
         error: function (error) {
-          // Handle error
           console.error("Error list coupon:", error);
         },
       });
