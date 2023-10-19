@@ -710,28 +710,49 @@ const CheckoutGet = async (req, res) => {
   }
 };
 
-// const ApplyCouponCart = async (req, res) => {
-//   const { couponCode } = req.body;
+const CheckoutCoupon = async (req, res) => {
+  try {
+    const couponCode = req.query.code; // Get the coupon code from the query parameters
 
-//   try {
-//     // Find the coupon based on the provided couponCode
-//     const coupon = await Coupon.findOne({ code: couponCode });
+    // Find the coupon in your database
+    const coupon = await Coupon.findOne({ code: couponCode });
 
-//     if (!coupon) {
-//       // Coupon not found
-//       return res.json({ valid: false });
-//     }
+    if (!coupon) {
+      return res
+        .status(400)
+        .json({ valid: false, message: "Invalid coupon code" });
+    }
 
-//     // Calculate discount and send coupon details to the front end
-//     const discountPercentage = coupon.discountPercentage;
-//     const minPurchaseAmount = coupon.minPurchaseAmount;
+    // Check if the coupon is active
+    if (!coupon.active) {
+      return res
+        .status(400)
+        .json({ valid: false, message: "Coupon is not active" });
+    }
 
-//     res.json({ valid: true, discountPercentage, minPurchaseAmount });
-//   } catch (error) {
-//     console.error("Error applying coupon:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
+    // Check if the coupon has expired
+    if (new Date() > coupon.expiresAt) {
+      return res
+        .status(400)
+        .json({ valid: false, message: "Coupon has expired" });
+    }
+
+    // Calculate the discount, limited to minPurchaseAmount if necessary
+    const discountPercentage = coupon.discountPercentage;
+    const minPurchaseAmount = coupon.minPurchaseAmount;
+
+    const discountDetails = {
+      valid: true,
+      discountPercentage: discountPercentage,
+      minPurchaseAmount: minPurchaseAmount,
+    };
+
+    return res.json(discountDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 const userOrdersGet = async (req, res) => {
   try {
@@ -761,19 +782,16 @@ const userOrdersPost = async (req, res) => {
       phone,
       pincode,
       paymentMethod,
+      totalAmount,
     } = req.body;
 
     const user = req.session.login;
     const carts = await Cart.find({ userId: user });
 
     if (paymentMethod === "Cash On Delivery") {
-      let totalAmount = 0;
-
       const updatedStockQuantities = {};
 
       for (const cartItem of carts) {
-        totalAmount += cartItem.price * cartItem.quantity;
-
         const product = await Product.findById(cartItem.productId);
 
         if (product) {
@@ -817,13 +835,9 @@ const userOrdersPost = async (req, res) => {
 
       return res.json({ cod: true });
     } else if (paymentMethod === "Online Payment") {
-      let totalAmount = 0;
-
       const updatedStockQuantities = {};
 
       for (const cartItem of carts) {
-        totalAmount += cartItem.price * cartItem.quantity;
-
         const product = await Product.findById(cartItem.productId);
 
         if (product) {
@@ -862,13 +876,9 @@ const userOrdersPost = async (req, res) => {
     } else if (paymentMethod === "Wallet Payment") {
       const userDoc = await userModel.findOne({ email: user });
 
-      let totalAmount = 0;
-
       const updatedStockQuantities = {};
 
       for (const cartItem of carts) {
-        totalAmount += cartItem.price * cartItem.quantity;
-
         const product = await Product.findById(cartItem.productId);
 
         if (product) {
@@ -1052,6 +1062,7 @@ module.exports = {
   CartProductdc,
   CartProductin,
   CheckoutGet,
+  CheckoutCoupon,
   userOrdersGet,
   userOrdersPost,
   ConfirmOrder,

@@ -38,6 +38,8 @@ router
   .put("/cart/increase/:id", userController.CartProductin)
   .delete("/cart/delete/:id", userController.DeleteCart)
   .get("/cart/checkout", checkUserStatus, userController.CheckoutGet)
+  .get("/cart/checkout/validate-coupon", checkUserStatus, userController.CheckoutCoupon)
+
 router
   .get("/orders", checkUserStatus, userController.userOrdersGet)
   .post("/orders", userController.userOrdersPost)

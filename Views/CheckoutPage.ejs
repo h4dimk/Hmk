@@ -415,11 +415,15 @@
 
     <!--===============================================================================================-->
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script>
+      // calculating the total
+
+      let totalAmount = 0;
+
       function updateTotalAmount() {
         const cartItemTotals = document.querySelectorAll(".cart-item-total");
-
-        let totalAmount = 0;
 
         cartItemTotals.forEach((item) => {
           totalAmount += parseFloat(item.getAttribute("data-total"));
@@ -430,12 +434,50 @@
       }
 
       window.addEventListener("load", updateTotalAmount);
-    </script>
-    <!--===============================================================================================-->
 
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+      // Coupon
 
-    <script>
+      function applyCoupon() {
+        const couponCode = document.getElementById("couponCode").value;
+
+        // Make a request to the server to validate the coupon code.
+        fetch(`/user/cart/checkout/validate-coupon?code=${couponCode}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Coupon validation failed");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.valid) {
+              // Check if the order total is greater than or equal to minPurchaseAmount
+              if (totalAmount < data.minPurchaseAmount) {
+                alert(
+                  `Order total must be at least ₹${data.minPurchaseAmount} to apply this coupon.`
+                );
+              } else {
+                // Apply the discount, limited to minPurchaseAmount if necessary
+                let discount = (totalAmount * data.discountPercentage) / 100;
+                if (discount > data.minPurchaseAmount) {
+                  discount = data.minPurchaseAmount;
+                }
+
+                totalAmount -= discount;
+                totalAmount = Math.round(totalAmount);
+
+                // Update the total amount displayed on the page
+                const totalAmountSpan = document.getElementById("total-amount");
+                totalAmountSpan.textContent = `₹${totalAmount}`;
+              }
+            } else {
+              alert("Invalid coupon code");
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+
       function call() {
         const name = document.getElementById("name").value;
         const email = document.getElementById("email").value;
@@ -455,6 +497,7 @@
           phone,
           pincode,
           paymentMethod,
+          totalAmount,
         };
 
         console.log(orderData);

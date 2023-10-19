@@ -87,10 +87,15 @@
 
     <div class="bg0 p-t-75 p-b-85">
       <% if(orders.length === 0){%>
-        <div class="text-center"> 
-        <img id="no-result-image" src="/images/Cart empty.png" alt="No Result" style=" max-width: 100%; " />
+      <div class="text-center">
+        <img
+          id="no-result-image"
+          src="/images/Cart empty.png"
+          alt="No Result"
+          style="max-width: 100%"
+        />
       </div>
-        <%}else{%>
+      <%}else{%>
       <div class="container">
         <div class="row">
           <% orders.forEach(order => { %>
@@ -141,23 +146,34 @@
                       >
                     </span>
                   </div>
+
+                  <div class="flex-w flex-m m-r-20 m-tb-5">
+                    <span class="cl2 plh4 p-lr-20 m-r-10 m-tb-5">
+                      Total Amount:
+                      <span class="cl1" style="font-size: larger">
+                        ₹<%= order.totalAmount %>
+                      </span>
+                    </span>
+                  </div>
+
                   <form
                     action="/user/orders/cancel-order/<%=order._id%>"
                     method="post"
                   >
-                  <% if (order.status !== "Cancelled" && order.status !== "Requesting order cancellation") { %>
+                    <% if (order.status !== "Cancelled" && order.status !==
+                    "Requesting order cancellation") { %>
                     <div class="flex-w flex-m m-r-20 m-tb-5">
                       <button class="btn btn-danger" type="submit">
                         Cancel Order
                       </button>
                     </div>
-                  <% } else { %>
+                    <% } else { %>
                     <div class="flex-w flex-m m-r-20 m-tb-5">
                       <button class="btn btn-secondary" type="submit" disabled>
                         Cancel Order
                       </button>
                     </div>
-                  <% } %>
+                    <% } %>
                   </form>
                 </div>
               </div>
