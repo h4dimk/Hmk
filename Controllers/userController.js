@@ -587,11 +587,11 @@ const resetPasswordPost = async (req, res) => {
 
 const userCartGet = async (req, res) => {
   try {
-    delete req.session.error;
     if (req.session.login) {
+      const error = req.session.error;
       const user = req.session.login;
       const carts = await Cart.find({ userId: user });
-      res.render("UserCart", { carts });
+      res.render("UserCart", { carts, error });
     } else {
       res.redirect("/user/login");
     }
@@ -610,6 +610,14 @@ const userCartPost = async (req, res) => {
     const product = await Product.findById(productId);
 
     const quantity = req.body["num-product"];
+    const availableStockQuantity = product.stockQuantity;
+
+    if (quantity > availableStockQuantity) {
+      req.session.error = "Requested quantity exceeds available stock quantity";
+      return res.redirect("/user/cart");
+    }
+
+    delete req.session.error;
     const price = product.sellingPrice;
 
     const cartItem = await Cart.findOne({ userId: user, name: product.name });
@@ -703,8 +711,10 @@ const CartProductin = async (req, res) => {
 const CheckoutGet = async (req, res) => {
   try {
     const user = req.session.login;
+    const error = req.session.error;
     const carts = await Cart.find({ userId: user });
-    res.render("CheckoutPage", { carts });
+    res.render("CheckoutPage", { carts, error });
+    delete req.session.error;
   } catch (error) {
     console.error(error);
   }
@@ -801,9 +811,11 @@ const userOrdersPost = async (req, res) => {
           if (orderedQuantity <= currentStockQuantity) {
             product.stockQuantity -= orderedQuantity;
             await product.save();
-
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
+          } else {
+            req.session.error = "Insufficient product stock";
+            return res.redirect("/user/cart/checkout");
           }
         }
       }
@@ -850,6 +862,9 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
+          }else {
+            req.session.error = "Insufficient product stock";
+            return res.redirect("/user/cart/checkout");
           }
         }
       }
@@ -891,6 +906,9 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
+          }else {
+            req.session.error = "Insufficient product stock";
+            return res.redirect("/user/cart/checkout");
           }
         }
       }

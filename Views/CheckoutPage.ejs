@@ -103,6 +103,10 @@
       <div class="container">
         <h2 class="mb-4">Checkout</h2>
 
+        <% if (locals.error) { %>
+          <div class="alert alert-danger"><%= error %></div> <!-- Display the error message -->
+        <% } %>
+
         <div class="row">
           <!-- Left Column - Personal Information Form -->
           <div class="col-md-6">
@@ -267,9 +271,6 @@
               </div>
             </div>
           </div>
-          <% if (locals.error) { %>
-          <p style="color: red"><%= error %></p>
-          <% } %>
         </div>
 
         <!-- Place Order Button -->
