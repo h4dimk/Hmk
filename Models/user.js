@@ -17,17 +17,33 @@ const userSchema = new mongoose.Schema({
   phonenumber: {
     type: Number,
   },
-  isActive:{
-    type:Boolean,
-    default:true,
+  isActive: {
+    type: Boolean,
+    default: true,
   },
-  otp:{
-    type:String,
+  otp: {
+    type: String,
   },
- wallet:{
-  type:Number,
-  default:0,
- }
+  wallet: {
+    type: Number,
+    default: 0,
+  },
+  addresses: [
+    {
+      street: {
+        type: String,
+      },
+      city: {
+        type: String,
+      },
+      state: {
+        type: String,
+      },
+      pincode: {
+        type: Number,
+      },
+    }
+  ],
 });
 
 const User = mongoose.model("User", userSchema);

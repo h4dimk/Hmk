@@ -29,10 +29,12 @@ const ProductSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  imagePath: [{
-    type: String,
-    required: true,
-  }],
+  imagePath: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
   stockQuantity: {
     type: Number,
     required: true,

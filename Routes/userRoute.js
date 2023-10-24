@@ -38,7 +38,11 @@ router
   .put("/cart/increase/:id", userController.CartProductin)
   .delete("/cart/delete/:id", userController.DeleteCart)
   .get("/cart/checkout", checkUserStatus, userController.CheckoutGet)
-  .get("/cart/checkout/validate-coupon", checkUserStatus, userController.CheckoutCoupon)
+  .get(
+    "/cart/checkout/validate-coupon",
+    checkUserStatus,
+    userController.CheckoutCoupon
+  );
 
 router
   .get("/orders", checkUserStatus, userController.userOrdersGet)
@@ -48,6 +52,8 @@ router
 
 router
   .get("/profile", checkUserStatus, userController.UserProfileGet)
-  .put("/profile/edit-profile", userController.editUserProfile);
+  .put("/profile/edit-profile", userController.editUserProfile)
+  .post("/profile/add-address", userController.addAddressPost)
+  .delete("/profile/delete/:id",userController.deleteAddress)
 
 module.exports = router;

@@ -710,11 +710,18 @@ const CartProductin = async (req, res) => {
 
 const CheckoutGet = async (req, res) => {
   try {
-    const user = req.session.login;
+    const userId = req.session.login;
     const error = req.session.error;
-    const carts = await Cart.find({ userId: user });
-    res.render("CheckoutPage", { carts, error });
-    delete req.session.error;
+
+    const user = await userModel.findOne({ email: userId });
+
+    if (!user) {
+      return res.redirect("/user/login");
+    } else {
+      const carts = await Cart.find({ userId });
+      res.render("CheckoutPage", { carts, user, error });
+      delete req.session.error;
+    }
   } catch (error) {
     console.error(error);
   }
@@ -783,17 +790,8 @@ const userOrdersPost = async (req, res) => {
     console.log(req.body);
     console.log("called");
 
-    const {
-      name,
-      email,
-      state,
-      district,
-      city,
-      phone,
-      pincode,
-      paymentMethod,
-      totalAmount,
-    } = req.body;
+    const { name, email, phone, address, paymentMethod, totalAmount } =
+      req.body;
 
     const user = req.session.login;
     const carts = await Cart.find({ userId: user });
@@ -828,11 +826,8 @@ const userOrdersPost = async (req, res) => {
         products: carts,
         name,
         email,
-        state,
-        district,
-        city,
+        address,
         phone,
-        pincode,
         paymentMethod,
         status: "Pending",
         totalAmount,
@@ -862,7 +857,7 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
-          }else {
+          } else {
             req.session.error = "Insufficient product stock";
             return res.redirect("/user/cart/checkout");
           }
@@ -906,7 +901,7 @@ const userOrdersPost = async (req, res) => {
 
             updatedStockQuantities[product._id] =
               currentStockQuantity - orderedQuantity;
-          }else {
+          } else {
             req.session.error = "Insufficient product stock";
             return res.redirect("/user/cart/checkout");
           }
@@ -918,8 +913,13 @@ const userOrdersPost = async (req, res) => {
       }
 
       // Deduct the order total from the user's wallet
-      userDoc.wallet -= totalAmount;
-      await userDoc.save();
+      if (userDoc.wallet >= totalAmount) {
+        userDoc.wallet -= totalAmount;
+        await userDoc.save();
+      } else {
+        req.session.error = "Insufficient amount in your wallet";
+        return res.redirect("/user/cart/checkout");
+      }
 
       const orderId = generateRandomOrderId();
 
@@ -929,11 +929,8 @@ const userOrdersPost = async (req, res) => {
         products: carts,
         name,
         email,
-        state,
-        district,
-        city,
+        address,
         phone,
-        pincode,
         paymentMethod,
         status: "Pending",
         totalAmount,
@@ -944,6 +941,7 @@ const userOrdersPost = async (req, res) => {
 
       // Delete the user's cart after placing the order
       await Cart.deleteMany({ userId: user });
+      delete req.session.error;
 
       return res.json({ wallet: true });
     }
@@ -958,16 +956,7 @@ const ConfirmOrder = async (req, res) => {
 
     const { amount, receipt } = orderId;
 
-    const {
-      name,
-      email,
-      state,
-      district,
-      city,
-      phone,
-      pincode,
-      paymentMethod,
-    } = orderData;
+    const { name, email, phone, address, paymentMethod } = orderData;
 
     const user = req.session.login;
     const carts = await Cart.find({ userId: user });
@@ -978,11 +967,8 @@ const ConfirmOrder = async (req, res) => {
       products: carts,
       name,
       email,
-      state,
-      district,
-      city,
+      address,
       phone,
-      pincode,
       paymentMethod,
       status: "Pending",
       totalAmount: amount / 100,
@@ -990,6 +976,7 @@ const ConfirmOrder = async (req, res) => {
     });
 
     await order.save();
+    delete req.session.error;
 
     // Delete the user's cart after placing the order
     await Cart.deleteMany({ userId: user });
@@ -1056,6 +1043,50 @@ const editUserProfile = async (req, res) => {
     console.log(error);
   }
 };
+
+const addAddressPost = async (req, res) => {
+  try {
+    const userId = req.session.login;
+
+    const { street, city, state, pincode } = req.body;
+
+    const newAddress = { street, city, state, pincode };
+
+    const user = await userModel.findOne({ email: userId });
+    user.addresses.push(newAddress);
+
+    await user.save();
+
+    res.status(200).json({ message: "Address added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const userId = req.session.login;
+    const addressId = req.params.id;
+
+    // Find the user and update their addresses by excluding the address to be deleted
+    const updatedUser = await userModel.findOneAndUpdate(
+      { email: userId },
+      { $pull: { addresses: { _id: addressId } } },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+
+    res.status(200).json({ message: "Address deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 module.exports = {
   userSignUpGet,
   otpEntryGet,
@@ -1087,4 +1118,6 @@ module.exports = {
   CancelOrder,
   UserProfileGet,
   editUserProfile,
+  addAddressPost,
+  deleteAddress,
 };

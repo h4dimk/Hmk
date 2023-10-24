@@ -115,18 +115,19 @@
                 disabled
               />
             </div>
-
             <div class="profile-info-item">
               <label for="phone">Phone Number:</label>
-              <input type="text" id="phone" value="<%=user.phonenumber%>""
-              disabled />
+              <input
+                type="text"
+                id="phone"
+                value="<%=user.phonenumber%>"
+                disabled
+              />
             </div>
-
             <div class="profile-info-item">
               <label for="email">Email:</label>
               <input type="email" id="email" value="<%=user.email%>" disabled />
             </div>
-
             <button class="btn cl0 bg3 hov-btn3 p-lr-15 mt-2" id="editProfile">
               Edit Profile
             </button>
@@ -136,6 +137,11 @@
               style="display: none"
             >
               Save Changes
+            </button>
+
+            <!-- Add Address Button -->
+            <button class="btn cl0 bg3 hov-btn3 p-lr-15 mt-2" id="addAddress">
+              Add Address
             </button>
           </div>
         </div>
@@ -150,6 +156,114 @@
                 <!-- You can add more wallet details as needed -->
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Display Existing Addresses -->
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <h2>Addresses</h2>
+          <ul class="address-list">
+            <% user.addresses.forEach((address, index) => { %>
+            <li class="address-box">
+              <div class="address-details">
+                <p><strong>Street:</strong> <%= address.street %></p>
+                <p><strong>City:</strong> <%= address.city %></p>
+                <p><strong>State:</strong> <%= address.state %></p>
+                <p><strong>Pincode:</strong> <%= address.pincode %></p>
+              </div>
+              <button
+                class="btn btn-danger mt-2"
+                onclick="deleteAddress('<%= address._id %>')"
+              >
+                Delete
+              </button>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap Modal for Address Form -->
+    <div
+      class="modal fade"
+      id="addressModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="addressModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addressModalLabel">Add Address</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Address Form -->
+            <form id="addressForm">
+              <div class="form-group">
+                <label for="street">Street:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="street"
+                  name="street"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="city">City:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="city"
+                  name="city"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="state">State:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="state"
+                  name="state"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="pincode">Pincode:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pincode"
+                  name="pincode"
+                  required
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="saveAddress">
+              Save Address
+            </button>
           </div>
         </div>
       </div>
@@ -282,6 +396,88 @@
     </div>
 
     <!--===============================================================================================-->
+
+    <script>
+      function deleteAddress(id) {
+        fetch("/user/profile/delete/" + id, {
+          method: "DELETE", // Use "DELETE" method for deletion
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Handle success, e.g., remove the deleted address from the UI
+            window.location.reload(); // You can also update the UI without a full page reload
+          })
+          .catch((error) => {
+            console.error(error);
+            // Handle the error, e.g., display an error message
+          });
+      }
+    </script>
+
+    <!--===============================================================================================-->
+
+    <script>
+      // Handle "Add Address" button click
+      document.getElementById("addAddress").addEventListener("click", () => {
+        // Show the Bootstrap modal for the address form
+        $("#addressModal").modal("show");
+      });
+
+      document.getElementById("saveAddress").addEventListener("click", () => {
+        const street = document.getElementById("street").value;
+        const city = document.getElementById("city").value;
+        const state = document.getElementById("state").value;
+        const pincode = document.getElementById("pincode").value;
+
+        $("#addressModal").modal("hide");
+      });
+    </script>
+
+    <!--===============================================================================================-->
+
+    <script>
+      document.getElementById("saveAddress").addEventListener("click", () => {
+        const street = document.getElementById("street").value;
+        const city = document.getElementById("city").value;
+        const state = document.getElementById("state").value;
+        const pincode = document.getElementById("pincode").value;
+
+        const addressData = {
+          street,
+          city,
+          state,
+          pincode,
+        };
+
+        fetch("/user/profile/add-address", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(addressData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            window.location.reload();
+          })
+          .catch((error) => {
+            console.error(error);
+            // Handle the error, e.g., display an error message
+          });
+      });
+    </script>
+
+    <!--===============================================================================================-->
     <script>
       // Variables for profile fields
       const usernameField = document.getElementById("username");
@@ -316,7 +512,6 @@
           newPhone,
         };
 
-        
         fetch("/user/profile/edit-profile", {
           method: "PUT", // Assuming you're using the PUT method on the server
           headers: {
