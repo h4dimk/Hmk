@@ -176,6 +176,33 @@
                 </select>
               </div>
             </form>
+            <!-- Apply Coupon Section -->
+            <div class="mt-4">
+              <div class="text-center">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      id="couponCode"
+                      class="form-control"
+                      placeholder="Enter coupon code"
+                      aria-label="Coupon code"
+                      aria-describedby="apply-coupon-button"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        type="button"
+                        class="btn cl0 bg3 hov-btn3 p-lr-15 trans-04"
+                        id="apply-coupon-button"
+                        onclick="applyCoupon()"
+                      >
+                        Apply Coupon
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Right Column - Cart Summary -->
@@ -220,34 +247,6 @@
               <div class="text-center">
                 <h4>Total Amount:</h4>
                 <p><span id="total-amount">₹0</span></p>
-              </div>
-            </div>
-
-            <!-- Apply Coupon Section -->
-            <div class="mt-4">
-              <div class="text-center">
-                <div class="form-group">
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      id="couponCode"
-                      class="form-control"
-                      placeholder="Enter coupon code"
-                      aria-label="Coupon code"
-                      aria-describedby="apply-coupon-button"
-                    />
-                    <div class="input-group-append">
-                      <button
-                        type="button"
-                        class="btn cl0 bg3 hov-btn3 p-lr-15 trans-04"
-                        id="apply-coupon-button"
-                        onclick="applyCoupon()"
-                      >
-                        Apply Coupon
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -387,6 +386,48 @@
       </div>
     </footer>
 
+    <!-- Coupon success modal -->
+    <div
+      class="modal fade"
+      id="couponSuccessModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="couponSuccessModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="couponSuccessModalLabel">
+              Coupon Applied Successfully
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true" class="text-white">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <p class="h5">Coupon Applied Successfully</p>
+            <p class="mt-3">
+              Amount Reduced:
+              <span
+                id="amountReduced"
+                class="text-primary font-weight-bold"
+              ></span>
+            </p>
+            <p>
+              New Total:
+              <span id="newTotal" class="text-success font-weight-bold"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Back to top -->
     <div class="btn-back-to-top" id="myBtn">
       <span class="symbol-btn-back-to-top">
@@ -443,12 +484,20 @@
                   discount = data.minPurchaseAmount;
                 }
 
+                // Calculate the new total amount after the discount
                 totalAmount -= discount;
                 totalAmount = Math.round(totalAmount);
 
                 // Update the total amount displayed on the page
                 const totalAmountSpan = document.getElementById("total-amount");
                 totalAmountSpan.textContent = `₹${totalAmount}`;
+
+                // Show the success modal with amount reduced and new total
+                const modal = document.getElementById("couponSuccessModal");
+                const modalBody = modal.querySelector(".modal-body");
+                modalBody.innerHTML = `Your coupon has been applied successfully. 
+            Amount reduced: ₹${discount}. New Total: ₹${totalAmount}`;
+                $("#couponSuccessModal").modal("show");
               }
             } else {
               alert("Invalid coupon code");
