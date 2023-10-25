@@ -720,7 +720,6 @@ const CheckoutGet = async (req, res) => {
     } else {
       const carts = await Cart.find({ userId });
       res.render("CheckoutPage", { carts, user, error });
-      delete req.session.error;
     }
   } catch (error) {
     console.error(error);
@@ -1000,18 +999,20 @@ const ConfirmOrder = async (req, res) => {
 const CancelOrder = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    console.log(req.params);
+    const cancellationReason = req.body.cancellationReason;
 
     // Find the order by its ID in the database
     const order = await Order.findById(orderId);
 
     if (!order) {
-      // If the order doesn't exist, respond with an error
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Update the order status to "Requested to cancel the order"
+    // Update the order status to "Requesting order cancellation"
     order.status = "Requesting order cancellation";
+
+    // Save the cancellation reason
+    order.cancellationReason = cancellationReason;
 
     // Save the updated order in the database
     await order.save();

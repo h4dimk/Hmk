@@ -75,9 +75,6 @@
                 <li>
                   <a href="/user/profile">Profile</a>
                 </li>
-                <li>
-                  <a href="contact.html">Contact</a>
-                </li>
               </ul>
             </div>
           </nav>
@@ -156,25 +153,20 @@
                     </span>
                   </div>
 
-                  <form
-                    action="/user/orders/cancel-order/<%=order._id%>"
-                    method="post"
-                  >
-                    <% if (order.status !== "Cancelled" && order.status !==
-                    "Requesting order cancellation") { %>
-                    <div class="flex-w flex-m m-r-20 m-tb-5">
-                      <button class="btn btn-danger" type="submit">
-                        Cancel Order
-                      </button>
-                    </div>
-                    <% } else { %>
-                    <div class="flex-w flex-m m-r-20 m-tb-5">
-                      <button class="btn btn-secondary" type="submit" disabled>
-                        Cancel Order
-                      </button>
-                    </div>
-                    <% } %>
-                  </form>
+                  <% if (order.status !== "Cancelled" && order.status !==
+                  "Requesting order cancellation") { %>
+                  <div class="flex-w flex-m m-r-20 m-tb-5">
+                    <button id="cancelOrderButton" class="btn btn-danger">
+                      Cancel Order
+                    </button>
+                  </div>
+                  <% } else { %>
+                  <div class="flex-w flex-m m-r-20 m-tb-5">
+                    <button class="btn btn-secondary" disabled>
+                      Cancel Order
+                    </button>
+                  </div>
+                  <% } %>
                 </div>
               </div>
             </div>
@@ -324,6 +316,70 @@
         </div>
       </div>
     </footer>
+    <!-- Cancellation Reason Modal -->
+    <% orders.forEach(order => { %>
+
+    <div
+      class="modal fade"
+      id="cancellationReasonModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="cancellationReasonModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cancellationReasonModalLabel">
+              Provide a Reason for Cancellation
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form
+            id="cancellationReasonForm"
+            action="/user/orders/cancel-order/<%=order._id%>"
+            method="post"
+          >
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="cancellationReason">Reason for Cancellation:</label>
+                <textarea
+                  class="form-control"
+                  id="cancellationReason"
+                  name="cancellationReason"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn cl0 bg3 hov-btn3 p-lr-15 trans-04"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                class="btn btn-danger"
+                id="confirmCancellation"
+              >
+                Confirm Cancellation
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <% }) %>
 
     <!-- Back to top -->
     <div class="btn-back-to-top" id="myBtn">
@@ -333,6 +389,14 @@
     </div>
 
     <!--===============================================================================================-->
+    <script>
+      // Show the cancellation reason modal when the "Cancel Order" button is clicked
+      const cancelOrderButton = document.getElementById("cancelOrderButton");
+
+      cancelOrderButton.addEventListener("click", function () {
+        $("#cancellationReasonModal").modal("show");
+      });
+    </script>
 
     <!--===============================================================================================-->
     <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>

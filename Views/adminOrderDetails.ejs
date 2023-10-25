@@ -52,7 +52,7 @@
           <div class="col-md-6">
             <div class="card order-card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Order ID: <%= order.orderId%></h5>
+                <h5 class="card-title">Order ID: <%= order.orderId %></h5>
                 <div class="d-flex justify-content-between">
                   <div>
                     <p class="card-text">
@@ -65,9 +65,7 @@
                       <strong>Order Date:</strong>
                       <script>
                         const orderDate = new Date("<%= order.orderDate %>");
-
                         const formattedDate = orderDate.toLocaleString();
-
                         document.write(formattedDate);
                       </script>
                     </p>
@@ -89,22 +87,26 @@
                   </ul>
                 </div>
                 <hr />
-                <form
-                  action="/admin/orders/details/ <%= order._id %>"
-                  method="post"
-                >
-                  <p class="card-text"> 
+                <form action="/admin/orders/details/<%= order._id %>" method="post">
+                  <p class="card-text">
                     <strong>Order Status:</strong>
                     <select class="form-control" name="orderStatus">
-                      <% const orderStatusOptions = ["Pending", "Shipped",
-                      "Delivered", "Cancelled","Requesting order cancellation"]; %> <%
-                      orderStatusOptions.forEach(status => { %> <option
-                      value="<%= status %>" <%= order.status === status ?
-                      'selected' : '' %>> <%= status %> <% }); %>
+                      <% const orderStatusOptions = ["Pending", "Shipped", "Delivered", "Cancelled", "Requesting order cancellation"]; %>
+                      <% orderStatusOptions.forEach(status => { %>
+                        <option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>> <%= status %>
+                      <% }); %>
                     </select>
                   </p>
-
-                  <!-- update Button -->
+      
+                  <!-- Display the cancellation reason if it exists in red color -->
+                  <% if (order.cancellationReason) { %>
+                    <p class="card-text mt-2">
+                      <strong>Cancellation Reason:</strong>
+                      <span style="color: red;"><%= order.cancellationReason %></span>
+                    </p>
+                  <% } %>
+      
+                  <!-- Update Button -->
                   <button type="submit" class="btn btn-primary mt-3">
                     Update Status
                   </button>
@@ -113,7 +115,6 @@
             </div>
           </div>
           <% }); %>
-          <!-- Repeat this order card for each order -->
         </div>
       </div>
     </div>
