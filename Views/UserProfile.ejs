@@ -157,44 +157,13 @@
                 <p>Balance: ₹<%=user.wallet %></p>
               </div>
             </div>
-
-            <!-- Transaction History as a Table -->
-            <h4 class="mt-4">Transaction History</h4>
-            <table class="table transaction-table mt-3">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Check if there are wallet transactions -->
-                <% if (user.walletTransaction && user.walletTransaction.length >
-                0) { %>
-                <!-- Loop through wallet transactions from your database and generate rows -->
-                <% user.walletTransaction.forEach((transaction) => { %>
-                <tr>
-                  <td><%= transaction.date.toISOString().split('T')[0] %></td>
-                  <td>₹<%= transaction.amount.toFixed(2) %></td>
-                  <td><%= transaction.type %></td>
-                </tr>
-                <% }) %> <% } else { %>
-                <!-- Display a text message when there are no transactions -->
-                <tr>
-                  <td colspan="3" class="text-center">
-                    No wallet transactions available.
-                  </td>
-                </tr>
-                <% } %>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
 
-      <!-- Address List -->
-      <div class="row mt-3 mb-4">
+      <div class="row mt-4">
+        <!-- Address List -->
+
         <div class="col-md-6">
           <h4>Addresses</h4>
           <ul class="address-list">
@@ -222,6 +191,39 @@
             </li>
             <% } %>
           </ul>
+        </div>
+        <!-- Transaction History as a Table -->
+        <div class="col-md-6">
+          <h4>Transaction History</h4>
+          <table class="table transaction-table mt-3">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Check if there are wallet transactions -->
+              <% if (user.walletTransaction && user.walletTransaction.length >
+              0) { %>
+              <!-- Loop through wallet transactions from your database and generate rows -->
+              <% user.walletTransaction.forEach((transaction) => { %>
+              <tr>
+                <td><%= transaction.date.toISOString().split('T')[0] %></td>
+                <td>₹<%= transaction.amount.toFixed(2) %></td>
+                <td><%= transaction.type %></td>
+              </tr>
+              <% }) %> <% } else { %>
+              <!-- Display a text message when there are no transactions -->
+              <tr>
+                <td colspan="3" class="text-center">
+                  No wallet transactions available.
+                </td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -296,12 +298,16 @@
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn cl0 bg3 hov-btn3 p-lr-15"
               data-dismiss="modal"
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary" id="saveAddress">
+            <button
+              type="button"
+              class="btn cl0 bg3 hov-btn3 p-lr-15"
+              id="saveAddress"
+            >
               Save Address
             </button>
           </div>
@@ -310,7 +316,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg3 p-t-75 p-b-32">
+    <footer class="bg3 p-t-75 p-b-32 mt-4">
       <div class="container">
         <div class="row">
           <div class="col-sm-6 col-lg-3 p-b-50">
