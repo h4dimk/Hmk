@@ -608,6 +608,16 @@ const adminOrdersDetailsPost = async (req, res) => {
 
       if (user) {
         user.wallet += refundAmount;
+
+        // Create a wallet transaction record
+        const walletTransaction = {
+          date: new Date(),
+          amount: refundAmount,
+          type: "Credited",
+        };
+
+        user.walletTransaction.push(walletTransaction);
+
         await user.save();
       }
     }

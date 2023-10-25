@@ -915,6 +915,16 @@ const userOrdersPost = async (req, res) => {
       // Deduct the order total from the user's wallet
       if (userDoc.wallet >= totalAmount) {
         userDoc.wallet -= totalAmount;
+
+        // Create a wallet transaction record
+        const walletTransaction = {
+          date: new Date(),
+          amount: totalAmount,
+          type: "Debited",
+        };
+
+        userDoc.walletTransaction.push(walletTransaction);
+
         await userDoc.save();
       } else {
         req.session.error = "Insufficient amount in your wallet";
@@ -1072,7 +1082,7 @@ const deleteAddress = async (req, res) => {
     // Find the user and update their addresses by excluding the address to be deleted
     const updatedUser = await userModel.findOneAndUpdate(
       { email: userId },
-      { $pull: { addresses: { _id: addressId } } },
+      { $pull: { addresses: { _id: addressId } } }
     );
 
     if (!updatedUser) {
@@ -1085,7 +1095,6 @@ const deleteAddress = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   userSignUpGet,

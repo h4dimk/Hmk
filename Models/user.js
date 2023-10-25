@@ -28,6 +28,19 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  walletTransaction: [
+    {
+      date: {
+        type: Date,
+      },
+      amount: {
+        type: Number,
+      },
+      type: {
+        type: String,
+      },
+    },
+  ],
   addresses: [
     {
       street: {
@@ -42,7 +55,7 @@ const userSchema = new mongoose.Schema({
       pincode: {
         type: Number,
       },
-    }
+    },
   ],
 });
 

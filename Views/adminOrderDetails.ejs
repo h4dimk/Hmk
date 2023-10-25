@@ -52,7 +52,7 @@
           <div class="col-md-6">
             <div class="card order-card mb-4">
               <div class="card-body">
-                <h5 class="card-title">Order ID: <%= order._id %></h5>
+                <h5 class="card-title">Order ID: <%= order.orderId%></h5>
                 <div class="d-flex justify-content-between">
                   <div>
                     <p class="card-text">
@@ -85,10 +85,7 @@
                 <div class="address-section">
                   <p class="card-text"><strong>Shipping Address:</strong></p>
                   <ul class="list-unstyled">
-                    <li><strong>State:</strong> <%= order.state %></li>
-                    <li><strong>District:</strong> <%= order.district %></li>
-                    <li><strong>City:</strong> <%= order.city %></li>
-                    <li><strong>Pincode:</strong> <%= order.pincode %></li>
+                    <%= order.address %>
                   </ul>
                 </div>
                 <hr />
