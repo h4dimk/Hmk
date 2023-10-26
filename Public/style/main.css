@@ -302,6 +302,62 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 }
 
 /*//////////////////////////////////////////////////////////////////
+[ Order Invoice Styles  ]*/
+
+.invoice {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+.invoice-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.invoice-header h1 {
+  font-size: 36px;
+  color: #333;
+}
+.invoice-details {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+}
+.invoice-details p {
+  font-size: 16px;
+  margin: 10px 0;
+}
+.invoice-items {
+  margin-top: 20px;
+}
+.invoice-items table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.invoice-items th,
+.invoice-items td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+.invoice-items th {
+  background-color: #f2f2f2;
+}
+.invoice-total {
+  margin-top: 20px;
+  text-align: right;
+}
+.invoice-total p {
+  font-size: 18px;
+}
+
+@media print {
+  footer {
+    display: none;
+  }
+}
+
+/*//////////////////////////////////////////////////////////////////
 [ BUTTON BACK TO TOP ]*/
 .btn-back-to-top {
   display: none;

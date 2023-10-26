@@ -1023,6 +1023,22 @@ const CancelOrder = async (req, res) => {
   }
 };
 
+const OrderInvoice = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    const orderDetails = await Order.findById(orderId);
+
+    if (orderDetails) {
+      res.render("OrderInvoice", { order: orderDetails });
+    } else {
+      res.status(404).send("Order not found");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const UserProfileGet = async (req, res) => {
   try {
     if (req.session.login) {
@@ -1125,6 +1141,7 @@ module.exports = {
   userOrdersGet,
   userOrdersPost,
   ConfirmOrder,
+  OrderInvoice,
   CancelOrder,
   UserProfileGet,
   editUserProfile,

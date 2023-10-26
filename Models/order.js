@@ -41,14 +41,14 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  
+
   phone: {
     type: String,
     required: true,
   },
-  address:{
-    type:String,
-    required:true,
+  address: {
+    type: String,
+    required: true,
   },
   paymentMethod: {
     type: String,
@@ -66,9 +66,9 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  cancellationReason:{
-    type:String,
-  }
+  cancellationReason: {
+    type: String,
+  },
 });
 
 const Order = mongoose.model("Order", OrderSchema);

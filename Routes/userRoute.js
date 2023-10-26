@@ -48,12 +48,13 @@ router
   .get("/orders", checkUserStatus, userController.userOrdersGet)
   .post("/orders", userController.userOrdersPost)
   .post("/orders/cancel-order/:orderId", userController.CancelOrder)
-  .post("/confirmOrder", userController.ConfirmOrder);
+  .post("/confirmOrder", userController.ConfirmOrder)
+  .get("/orders/invoice/:orderId", userController.OrderInvoice);
 
 router
   .get("/profile", checkUserStatus, userController.UserProfileGet)
   .put("/profile/edit-profile", userController.editUserProfile)
   .post("/profile/add-address", userController.addAddressPost)
-  .delete("/profile/delete/:id",userController.deleteAddress)
+  .delete("/profile/delete/:id", userController.deleteAddress);
 
 module.exports = router;
