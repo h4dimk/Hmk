@@ -352,7 +352,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 }
 
 @media print {
-  footer {
+  .no-print {
     display: none;
   }
 }

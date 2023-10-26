@@ -87,14 +87,18 @@
         <h1>Order Invoice</h1>
       </div>
       <div class="invoice-details">
-        <p><strong>Order ID:</strong> #<%= order.orderId %></p>
-        <p><strong>Date:</strong> <%= order.orderDate.toISOString().split('T')[0] %></p>
+        <p><strong>Order ID:</strong> <%= order.orderId %></p>
+        <p>
+          <strong>Date:</strong> <%= order.orderDate.toISOString().split('T')[0]
+          %>
+        </p>
         <p><strong>Bill To:</strong> <%= order.name %></p>
         <p><strong>Shipping Address:</strong> <%= order.address %></p>
       </div>
       <div class="invoice-items">
         <table>
           <tr>
+            <th>Image</th>
             <th>Product Name</th>
             <th>Price</th>
             <th>Quantity</th>
@@ -102,6 +106,13 @@
           </tr>
           <% order.products.forEach(product => { %>
           <tr>
+            <td>
+              <img
+                src="/uploads/<%=product.productImg %>"
+                alt="IMG"
+                width="65"
+              />
+            </td>
             <td><%= product.name %></td>
             <td>₹<%= product.price %></td>
             <td><%= product.quantity %></td>
@@ -113,23 +124,13 @@
       <div class="invoice-total">
         <p><strong>Total Amount: ₹<%= order.totalAmount %></strong></p>
       </div>
-      <button class="btn cl0 bg3 hov-btn3 p-lr-15" id="printButton">
+      <button class="btn cl0 bg3 hov-btn3 p-lr-15 no-print" id="printButton">
         Print Invoice
       </button>
     </div>
 
-    <script>
-      // Add a click event listener to the print button
-      document
-        .getElementById("printButton")
-        .addEventListener("click", function () {
-          // Print the invoice when the button is clicked
-          window.print();
-        });
-    </script>
-
     <!-- Footer -->
-    <footer class="bg3 p-t-75 p-b-32 mt-5">
+    <footer class="bg3 p-t-75 p-b-32 mt-5 no-print">
       <div class="container">
         <div class="row">
           <div class="col-sm-6 col-lg-3 p-b-50">
@@ -277,12 +278,13 @@
 
     <!--===============================================================================================-->
     <script>
-      // Show the cancellation reason modal when the "Cancel Order" button is clicked
-      const cancelOrderButton = document.getElementById("cancelOrderButton");
-
-      cancelOrderButton.addEventListener("click", function () {
-        $("#cancellationReasonModal").modal("show");
-      });
+      // Add a click event listener to the print button
+      document
+        .getElementById("printButton")
+        .addEventListener("click", function () {
+          // Print the invoice when the button is clicked
+          window.print();
+        });
     </script>
 
     <!--===============================================================================================-->
