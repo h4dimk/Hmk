@@ -67,8 +67,10 @@ function generateRandomOrderId() {
 }
 
 const homeGet = async (req, res) => {
+
   try {
     const banners = await Banner.find();
+    console.log(banners);
     const products = await Product.find().limit(8);
     const login = req.session.login;
 

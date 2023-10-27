@@ -34,7 +34,7 @@ app.use("/user", userRoute);
 app.use('/',(req,res)=> res.redirect('/user'));
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/HMK")
+  .connect("mongodb+srv://hadimk04:iamhmk@cluster0.j3dweww.mongodb.net/?retryWrites=true&w=majority")
   .then(() => {
     console.log("MongoDB is connected");
     app.listen(3000, () => {
