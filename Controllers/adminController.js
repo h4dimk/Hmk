@@ -634,8 +634,9 @@ const adminOrdersDetailsPost = async (req, res) => {
 
 const adminCouponGet = async (req, res) => {
   try {
+    const error = req.session.error;
     const coupons = await Coupon.find();
-    res.render("adminCoupon", { coupons });
+    res.render("adminCoupon", { coupons, error });
   } catch (error) {
     console.error(error);
   }
@@ -643,16 +644,44 @@ const adminCouponGet = async (req, res) => {
 
 const addCoupon = async (req, res) => {
   try {
-    console.log("addcoupon reached");
     const {
       code,
       discountPercentage,
       minPurchaseAmount,
-      createdAt,
       expiresAt,
-      active,
       maxRedimableAmount,
     } = req.body;
+
+    const trimmedCode = code.trim();
+
+    // Check if any of the required fields are empty or only spaces
+    if (
+      !trimmedCode ||
+      !discountPercentage ||
+      !minPurchaseAmount ||
+      !expiresAt
+    ) {
+      req.session.error = "All fields are required";
+      return res.redirect("/admin/coupon");
+    }
+
+    if (
+      discountPercentage < 0 ||
+      minPurchaseAmount < 0 ||
+      maxRedimableAmount < 0
+    ) {
+      req.session.error =
+        "Discount, purchase amount, and redemable amount cannot be negative";
+      return res.redirect("/admin/coupon");
+    }
+
+    // Check if the coupon code already exists
+    const existingCoupon = await Coupon.findOne({ code: trimmedCode });
+
+    if (existingCoupon) {
+      req.session.error = "Coupon code already exists";
+      return res.redirect("/admin/coupon");
+    }
     const newCoupon = new Coupon({
       code,
       discountPercentage,
@@ -662,6 +691,7 @@ const addCoupon = async (req, res) => {
       active: true,
       maxRedimableAmount,
     });
+    delete req.session.error;
     await newCoupon.save();
     return res.redirect("/admin/coupon");
   } catch (error) {

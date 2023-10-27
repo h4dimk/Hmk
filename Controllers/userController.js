@@ -67,10 +67,8 @@ function generateRandomOrderId() {
 }
 
 const homeGet = async (req, res) => {
-
   try {
     const banners = await Banner.find();
-    console.log(banners);
     const products = await Product.find().limit(8);
     const login = req.session.login;
 
@@ -1079,7 +1077,23 @@ const addAddressPost = async (req, res) => {
 
     const { street, city, state, pincode } = req.body;
 
-    const newAddress = { street, city, state, pincode };
+    // Trim all input fields to remove leading/trailing spaces
+    const trimmedStreet = street.trim();
+    const trimmedCity = city.trim();
+    const trimmedState = state.trim();
+    const trimmedPincode = pincode.trim();
+
+    // Check if any of the trimmed input fields are empty
+    if (!trimmedStreet || !trimmedCity || !trimmedState || !trimmedPincode) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const newAddress = {
+      street: trimmedStreet,
+      city: trimmedCity,
+      state: trimmedState,
+      pincode: trimmedPincode,
+    };
 
     const user = await userModel.findOne({ email: userId });
     user.addresses.push(newAddress);
