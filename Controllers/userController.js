@@ -76,7 +76,7 @@ const homeGet = async (req, res) => {
 
     console.log("Now the user is " + login);
 
-    res.render("LandingPage", { login, banners, products });
+    res.render("/LandingPage", { login, banners, products });
   } catch (error) {
     console.error(error);
   }
