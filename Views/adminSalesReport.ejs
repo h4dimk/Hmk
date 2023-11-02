@@ -1,0 +1,111 @@
+<%- include('header') %> <%- include('adminlayout') %>
+
+<div id="content">
+  <div class="container">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <h2>Sales Report</h2>
+      </div>
+    </nav>
+    <div class="date-selection">
+      <label for="fromDate">From Date:</label>
+      <input type="date" id="fromDate" />
+
+      <label for="toDate">To Date:</label>
+      <input type="date" id="toDate" />
+
+      <button class="btn btn-secondary">Filter</button>
+    </div>
+
+    <div class="sales-list">
+      <table class="table table-bordered">
+        <!-- Table headers -->
+        <thead class="table-primary">
+          <tr>
+            <th>Date</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(order => { %>
+          <tr>
+            <td><%= order.orderDate.toLocaleDateString() %></td>
+
+            <% order.products.forEach(product => { %>
+            <td>
+              <ul>
+                <li><%= product.name %></li>
+              </ul>
+            </td>
+            <td><%= product.quantity %></td>
+            <% }); %>
+            <td><%= order.totalAmount %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <button id="downloadReportButton" class="btn btn-primary">
+      Download Sales Report
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fromDateInput = document.getElementById("fromDate");
+    const toDateInput = document.getElementById("toDate");
+    const filterButton = document.getElementById("filterButton");
+
+    // Reference to the table body where you want to display sales data
+    const tableBody = document.querySelector("table tbody");
+
+    filterButton.addEventListener("click", function () {
+      // Get the selected date values
+      const fromDate = fromDateInput.value;
+      const toDate = toDateInput.value;
+
+      // Clear the table body before adding filtered data
+      tableBody.innerHTML = "";
+
+      // Make an AJAX request to your server to get filtered data
+      // Replace the URL with the actual endpoint for fetching filtered data
+      fetch(`/admin/salesreport?fromDate=${fromDate}&toDate=${toDate}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // Loop through the fetched data and add it to the table
+          data.forEach((order) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td>${order.orderDate.toLocaleDateString()}</td>
+        <td>
+          <ul>
+            ${order.products
+              .map((product) => `<li>${product.name}</li>`)
+              .join("")}
+          </ul>
+        </td>
+        <td>
+          <ul>
+            ${order.products
+              .map((product) => `<li>${product.quantity}</li>`)
+              .join("")}
+          </ul>
+        </td>
+        <td>${order.totalAmount}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching data: " + error);
+        });
+    });
+  });
+</script>
+
+<%- include('footer') %>

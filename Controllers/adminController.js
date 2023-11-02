@@ -5,6 +5,8 @@ const Admin = require("../Models/admin");
 const Banner = require("../Models/banner");
 const Order = require("../Models/order");
 const Coupon = require("../Models/coupon");
+const Parser = require("json2csv");
+const fs = require("fs");
 
 const adminHomeGet = (req, res) => {
   try {
@@ -160,6 +162,56 @@ const adminDashboardGet = async (req, res) => {
     console.log(error);
   }
 };
+
+
+const adminSalesReport= async(req, res) => {
+  try {
+    const orders = await Order.find()
+    res.render("adminSalesReport",{orders});
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const downloadSalesReport = async (req, res) => {
+  try {
+    // Extract fromDate and toDate from query parameters
+    const { fromDate, toDate } = req.query;
+
+    // Use these dates to filter your sales data in the database
+    const filteredSales = await Order.find({
+      orderDate: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+    });
+
+    // Check if there are sales data to export
+    if (filteredSales.length === 0) {
+      return res.status(404).json({ error: "No sales data found for the selected date range" });
+    }
+
+    // Define fields for the CSV
+    const fields = [
+      "orderDate",
+      "productName",
+      "quantity",
+      "amount",
+    ];
+
+    // Convert sales data to CSV format
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(filteredSales);
+
+    // Set response headers to specify the content type and attachment
+    res.header("Content-Type", "text/csv");
+    res.attachment("sales_report.csv");
+
+    // Send the CSV content as a downloadable file
+    res.send(csv);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 const adminUsermanagementGet = async (req, res) => {
   try {
@@ -739,6 +791,8 @@ module.exports = {
   adminLoginGet,
   adminLoginPost,
   adminDashboardGet,
+  adminSalesReport,
+  downloadSalesReport,
   adminUsermanagementGet,
   adminProductsGet,
   adminCategoryGet,

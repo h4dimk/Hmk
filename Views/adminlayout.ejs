@@ -1,37 +1,58 @@
 <%-include('header')%>
 
 <!-- Sidebar -->
-<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block  sidebar">
+<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar">
   <div class="position-sticky">
     <ul class="nav flex-column">
       <li class="nav-item">
-        <a class="nav-link" href="/admin/dashboard" data-content="dashboard">Dashboard</a>
+        <a class="nav-link" href="/admin/dashboard" data-content="dashboard"
+          >Dashboard</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/usermanagement" data-content="user-management">User Management</a>
+        <a class="nav-link" href="/admin/salesreport" data-content="salesreport"
+          >Sales Report</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/products" data-content="products">Products</a>
+        <a
+          class="nav-link"
+          href="/admin/usermanagement"
+          data-content="user-management"
+          >User Management</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/categories" data-content="categories">Categories</a>
+        <a class="nav-link" href="/admin/products" data-content="products"
+          >Products</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/banners" data-content="banners">Banners</a>
+        <a class="nav-link" href="/admin/categories" data-content="categories"
+          >Categories</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/orders" data-content="orders">Orders</a>
+        <a class="nav-link" href="/admin/banners" data-content="banners"
+          >Banners</a
+        >
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/coupon" data-content="orders">Coupons</a>
+        <a class="nav-link" href="/admin/orders" data-content="orders"
+          >Orders</a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/admin/coupon" data-content="orders"
+          >Coupons</a
+        >
       </li>
       <!-- Add more sidebar links as needed -->
       <li class="nav-item">
-        <a class="nav-link" href="/admin/logout" style="color: red;">Logout</a>
+        <a class="nav-link" href="/admin/logout" style="color: red">Logout</a>
       </li>
     </ul>
   </div>
 </nav>
 
-
- <%- include('footer')%> 
+<%- include('footer')%>

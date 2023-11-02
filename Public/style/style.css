@@ -340,3 +340,23 @@ canvas {
   font-weight: bold;
   margin-right: 5px;
 }
+
+/*sales report page */
+
+.date-selection {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+label {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+input[type="date"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
