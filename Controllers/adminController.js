@@ -5,8 +5,7 @@ const Admin = require("../Models/admin");
 const Banner = require("../Models/banner");
 const Order = require("../Models/order");
 const Coupon = require("../Models/coupon");
-const Parser = require("json2csv");
-const fs = require("fs");
+const json2csv = require("json2csv").Parser;
 
 const adminHomeGet = (req, res) => {
   try {
@@ -163,55 +162,56 @@ const adminDashboardGet = async (req, res) => {
   }
 };
 
-
-const adminSalesReport= async(req, res) => {
+const adminSalesReport = async (req, res) => {
   try {
-    const orders = await Order.find()
-    res.render("adminSalesReport",{orders});
+    const orders = await Order.find({ status: { $ne: "Cancelled" } });
+    res.render("adminSalesReport", { orders });
   } catch (error) {
     console.error(error);
   }
 };
 
 const downloadSalesReport = async (req, res) => {
-  try {
-    // Extract fromDate and toDate from query parameters
-    const { fromDate, toDate } = req.query;
+  const { fromDate, toDate } = req.query;
 
-    // Use these dates to filter your sales data in the database
-    const filteredSales = await Order.find({
+  try {
+    const salesData = await Order.find({
+      status: { $ne: "Cancelled" },
       orderDate: { $gte: new Date(fromDate), $lte: new Date(toDate) },
     });
 
-    // Check if there are sales data to export
-    if (filteredSales.length === 0) {
-      return res.status(404).json({ error: "No sales data found for the selected date range" });
+    if (salesData.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No sales data found for the selected date range" });
     }
 
-    // Define fields for the CSV
-    const fields = [
-      "orderDate",
-      "productName",
-      "quantity",
-      "amount",
-    ];
+    // Flatten the products array and include product-related details in the CSV
+    const flattenedSalesData = salesData.map((order) => {
+      return order.products.map((product) => ({
+        orderDate: order.orderDate,
+        productName: product.name,
+        quantity: product.quantity,
+        amount: product.total,
+      }));
+    });
 
-    // Convert sales data to CSV format
-    const json2csvParser = new Parser({ fields });
-    const csv = json2csvParser.parse(filteredSales);
+    // Merge the arrays into a single flat array
+    const flatSalesData = [].concat(...flattenedSalesData);
 
-    // Set response headers to specify the content type and attachment
-    res.header("Content-Type", "text/csv");
+    const fields = ["orderDate", "productName", "quantity", "amount"];
+    const opts = { fields };
+    const json2csvParser = new json2csv(opts);
+    const csv = json2csvParser.parse(flatSalesData);
+
+    res.setHeader("Content-Type", "text/csv");
     res.attachment("sales_report.csv");
-
-    // Send the CSV content as a downloadable file
     res.send(csv);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const adminUsermanagementGet = async (req, res) => {
   try {

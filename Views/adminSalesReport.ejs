@@ -15,8 +15,11 @@
       <label for="toDate">To Date:</label>
       <input type="date" id="toDate" />
 
-      <button class="btn btn-secondary">Filter</button>
+      <button id="downloadReportButton" class="btn btn-primary">
+        Download Sales Report
+      </button>
     </div>
+    <div id="errorMessage" class="error-message"></div>
 
     <div class="sales-list">
       <table class="table table-bordered">
@@ -33,7 +36,6 @@
           <% orders.forEach(order => { %>
           <tr>
             <td><%= order.orderDate.toLocaleDateString() %></td>
-
             <% order.products.forEach(product => { %>
             <td>
               <ul>
@@ -48,64 +50,32 @@
         </tbody>
       </table>
     </div>
-
-    <button id="downloadReportButton" class="btn btn-primary">
-      Download Sales Report
-    </button>
   </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const fromDateInput = document.getElementById("fromDate");
-    const toDateInput = document.getElementById("toDate");
-    const filterButton = document.getElementById("filterButton");
+  document
+    .getElementById("downloadReportButton")
+    .addEventListener("click", () => {
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
 
-    // Reference to the table body where you want to display sales data
-    const tableBody = document.querySelector("table tbody");
-
-    filterButton.addEventListener("click", function () {
-      // Get the selected date values
-      const fromDate = fromDateInput.value;
-      const toDate = toDateInput.value;
-
-      // Clear the table body before adding filtered data
-      tableBody.innerHTML = "";
-
-      // Make an AJAX request to your server to get filtered data
-      // Replace the URL with the actual endpoint for fetching filtered data
-      fetch(`/admin/salesreport?fromDate=${fromDate}&toDate=${toDate}`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Loop through the fetched data and add it to the table
-          data.forEach((order) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-            <td>${order.orderDate.toLocaleDateString()}</td>
-        <td>
-          <ul>
-            ${order.products
-              .map((product) => `<li>${product.name}</li>`)
-              .join("")}
-          </ul>
-        </td>
-        <td>
-          <ul>
-            ${order.products
-              .map((product) => `<li>${product.quantity}</li>`)
-              .join("")}
-          </ul>
-        </td>
-        <td>${order.totalAmount}</td>
-            `;
-            tableBody.appendChild(row);
-          });
+      fetch(`/admin/salesreport/download?fromDate=${fromDate}&toDate=${toDate}`)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const url = window.URL.createObjectURL(new Blob([blob]));
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "sales_report.csv";
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
         })
         .catch((error) => {
-          console.error("Error fetching data: " + error);
+          document.getElementById("errorMessage").textContent =
+            "Error: " + error;
         });
     });
-  });
 </script>
 
 <%- include('footer') %>
