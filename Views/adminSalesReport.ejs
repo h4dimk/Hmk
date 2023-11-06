@@ -34,22 +34,29 @@
         </thead>
         <tbody>
           <% orders.forEach(order => { %>
-          <tr>
-            <td><%= order.orderDate.toLocaleDateString() %></td>
-            <% order.products.forEach(product => { %>
-            <td>
-              <ul>
-                <li><%= product.name %></li>
-              </ul>
-            </td>
-            <td><%= product.quantity %></td>
-            <% }); %>
-            <td><%= order.totalAmount %></td>
-          </tr>
+            <tr>
+              <td><%= order.orderDate.toLocaleDateString() %></td>
+              <td>
+                <% order.products.forEach(product => { %>
+                  <ul>
+                    <li><%= product.name %></li>
+                  </ul>
+                <% }); %>
+              </td>
+              <td>
+                <% order.products.forEach(product => { %>
+                  <ul>
+                    <li><%= product.quantity %></li>
+                  </ul>
+                <% }); %>
+              </td>
+              <td><%= order.totalAmount %></td>
+            </tr>
           <% }); %>
         </tbody>
       </table>
     </div>
+    
   </div>
 </div>
 

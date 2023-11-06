@@ -175,6 +175,12 @@ const downloadSalesReport = async (req, res) => {
   const { fromDate, toDate } = req.query;
 
   try {
+    if (!fromDate || !toDate) {
+      return res
+        .status(400)
+        .json({ error: "Invalid date range provided" });
+    }
+
     const salesData = await Order.find({
       status: { $ne: "Cancelled" },
       orderDate: { $gte: new Date(fromDate), $lte: new Date(toDate) },
@@ -200,7 +206,7 @@ const downloadSalesReport = async (req, res) => {
     const flatSalesData = [].concat(...flattenedSalesData);
 
     const fields = ["orderDate", "productName", "quantity", "amount"];
-    const opts = { fields };
+    const opts = { fields, header: true, includeEmptyRows: true };
     const json2csvParser = new json2csv(opts);
     const csv = json2csvParser.parse(flatSalesData);
 
@@ -212,6 +218,7 @@ const downloadSalesReport = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 const adminUsermanagementGet = async (req, res) => {
   try {
