@@ -44,7 +44,7 @@ const adminLoginPost = async (req, res) => {
     } else {
       req.session.error = "Invalid password";
       return res.redirect("/admin/login");
-    }
+    }  
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).render("error", {
