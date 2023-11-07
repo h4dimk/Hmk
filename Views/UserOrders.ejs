@@ -156,7 +156,10 @@
                   <% if (order.status !== "Cancelled" && order.status !==
                   "Requesting order cancellation") { %>
                   <div class="flex-w flex-m m-r-20 m-tb-5">
-                    <button id="cancelOrderButton" class="btn btn-danger">
+                    <button
+                      id="cancelOrderButton_<%= order._id %>"
+                      class="btn btn-danger"
+                    >
                       Cancel Order
                     </button>
                   </div>
@@ -334,7 +337,7 @@
 
     <div
       class="modal fade"
-      id="cancellationReasonModal"
+      id="cancellationReasonModal_<%= order._id %>"
       tabindex="-1"
       role="dialog"
       aria-labelledby="cancellationReasonModalLabel"
@@ -402,14 +405,15 @@
     </div>
 
     <!--===============================================================================================-->
+    <% orders.forEach(order => { %>
     <script>
-      // Show the cancellation reason modal when the "Cancel Order" button is clicked
-      const cancelOrderButton = document.getElementById("cancelOrderButton");
+      const cancelOrderButton_<%= order._id %> = document.getElementById("cancelOrderButton_<%= order._id %>");
 
-      cancelOrderButton.addEventListener("click", function () {
-        $("#cancellationReasonModal").modal("show");
+      cancelOrderButton_<%= order._id %>.addEventListener("click", function () {
+        $("#cancellationReasonModal_<%= order._id %>").modal("show");
       });
     </script>
+    <% }) %>
 
     <!--===============================================================================================-->
     <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
